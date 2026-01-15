@@ -1,10 +1,11 @@
+import 'package:app_con_datos/screens/sales/sales_form_screen.dart';
+import 'package:app_con_datos/screens/sales/sales_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/category/categoria_screen.dart';
 import 'screens/category/categoria_form_screen.dart';
 import 'screens/clientes/cliente_screen.dart';
 import 'screens/clientes/clientes_form_screen.dart';
 import 'screens/home_screen.dart';
-
 import 'screens/productos/producto_form_screen.dart';
 import 'screens/productos/producto_screen.dart';
 
@@ -26,6 +27,8 @@ class MyApp extends StatelessWidget {
         '/cliente/form': (context) => ClienteFormScreen(),
         '/producto': (context) => ProductoScreen(),
         '/cliente': (context) => ClienteScreen(),
+        '/ventas': (context) => SalesScreen(),
+        '/ventas/form': (context) => VentasFormScreen(),
       },
     );
   }

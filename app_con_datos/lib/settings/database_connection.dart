@@ -93,6 +93,30 @@ class DatabaseConnection {
         FOREIGN KEY (productoId) REFERENCES products(id)
       );
       ''');
+        // Tabla principal de ventas
+        await db.execute('''
+      CREATE TABLE sales(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        clienteId INTEGER NOT NULL,
+        fecha TEXT NOT NULL,
+        montoTotal REAL NOT NULL,
+        FOREIGN KEY (clienteId) REFERENCES clients(id)
+      );
+      ''');
+
+        // Tabla de detalles de ventas
+        await db.execute('''
+      CREATE TABLE sale_details(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ventaId INTEGER NOT NULL,
+        productoId INTEGER NOT NULL,
+        cantidad INTEGER NOT NULL,
+        precioUnitario REAL NOT NULL,
+        subtotal REAL NOT NULL,
+        FOREIGN KEY (ventaId) REFERENCES sales(id),
+        FOREIGN KEY (productoId) REFERENCES products(id)
+      );
+      ''');
       },
     );
   }
