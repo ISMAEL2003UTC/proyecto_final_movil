@@ -38,5 +38,4 @@ class CategoryRepository {
     return response.map((e) => CategoryModels.fromMap(e)).toList();
   }
 
-  //funcion para eliminar
 }

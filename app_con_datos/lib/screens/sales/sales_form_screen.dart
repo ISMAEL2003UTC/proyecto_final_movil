@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../models/products_models.dart';
+import '../../models/sale_detail_models.dart';
+import '../../repositories/products_repository.dart';
 
 class VentasFormScreen extends StatefulWidget {
   const VentasFormScreen({super.key});
@@ -9,10 +12,27 @@ class VentasFormScreen extends StatefulWidget {
 
 class _VentasFormScreenState extends State<VentasFormScreen> {
   final formKey = GlobalKey<FormState>();
+
   final productoController = TextEditingController();
   final cantidadController = TextEditingController();
   final precioController = TextEditingController();
   final clienteController = TextEditingController();
+
+  final ProductsRepository productsRepo = ProductsRepository();
+
+  List<ProductsModels> productos = [];
+  ProductsModels? productoSeleccionado;
+
+  @override
+  void initState() {
+    super.initState();
+    cargarProductos();
+  }
+
+  Future<void> cargarProductos() async {
+    productos = await productsRepo.getAll();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,41 +48,54 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
           key: formKey,
           child: Column(
             children: [
-              // Producto
-              TextFormField(
-                controller: productoController,
-                validator: (value) => value == null || value.isEmpty
-                    ? "Ingrese el producto"
-                    : null,
-                decoration: InputDecoration(
-                  labelText: 'Producto',
-                  hintText: 'Ingrese el nombre del producto',
-                  prefixIcon: const Icon(
-                    Icons.shopping_bag,
-                    color: Colors.black,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
+              /// PRODUCTO (AUTOCOMPLETE)
+              Autocomplete<ProductsModels>(
+                optionsBuilder: (TextEditingValue value) {
+                  if (value.text.isEmpty) {
+                    return const Iterable<ProductsModels>.empty();
+                  }
+                  return productos.where(
+                        (p) => p.nombre
+                        .toLowerCase()
+                        .contains(value.text.toLowerCase()),
+                  );
+                },
+                displayStringForOption: (option) => option.nombre,
+                onSelected: (selection) {
+                  productoSeleccionado = selection;
+                  productoController.text = selection.nombre;
+                  precioController.text = selection.precio.toString();
+                },
+                fieldViewBuilder:
+                    (context, controller, focusNode, onFieldSubmitted) {
+                  return TextFormField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    validator: (_) => productoSeleccionado == null
+                        ? 'Seleccione un producto'
+                        : null,
+                    decoration: InputDecoration(
+                      labelText: 'Producto',
+                      prefixIcon: const Icon(Icons.shopping_bag),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: 15),
 
-              // Cantidad
+              /// CANTIDAD
               TextFormField(
                 controller: cantidadController,
                 keyboardType: TextInputType.number,
-                validator: (value) => value == null || value.isEmpty
-                    ? "Ingrese la cantidad"
-                    : null,
+                validator: (value) =>
+                value == null || value.isEmpty ? 'Ingrese cantidad' : null,
                 decoration: InputDecoration(
                   labelText: 'Cantidad',
-                  hintText: 'Ingrese la cantidad',
-                  prefixIcon: const Icon(
-                    Icons.confirmation_number,
-                    color: Colors.black,
-                  ),
+                  prefixIcon: const Icon(Icons.numbers),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -71,37 +104,14 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
 
               const SizedBox(height: 15),
 
-              // Precio
-              TextFormField(
-                controller: precioController,
-                keyboardType: TextInputType.number,
-                validator: (value) =>
-                    value == null || value.isEmpty ? "Ingrese el precio" : null,
-                decoration: InputDecoration(
-                  labelText: 'Precio',
-                  hintText: 'Ingrese el precio unitario',
-                  prefixIcon: const Icon(
-                    Icons.attach_money,
-                    color: Colors.black,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              // Cliente
+              /// CLIENTE
               TextFormField(
                 controller: clienteController,
-                validator: (value) => value == null || value.isEmpty
-                    ? "Ingrese el cliente"
-                    : null,
+                validator: (value) =>
+                value == null || value.isEmpty ? "Ingrese el cliente" : null,
                 decoration: InputDecoration(
                   labelText: 'Cliente',
-                  hintText: 'Ingrese el nombre del cliente',
-                  prefixIcon: const Icon(Icons.person, color: Colors.black),
+                  prefixIcon: const Icon(Icons.person),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -110,7 +120,7 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
 
               const SizedBox(height: 20),
 
-              // Botones Aceptar / Cancelar
+              /// BOTONES ACEPTAR / CANCELAR
               Row(
                 children: [
                   Expanded(
@@ -118,14 +128,21 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
                       height: 60,
                       child: TextButton(
                         onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Venta registrada"),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          }
+                          if (!formKey.currentState!.validate()) return;
+                          if (productoSeleccionado == null) return;
+
+                          final subtotal = productoSeleccionado!.precio *
+                              int.parse(cantidadController.text);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  "Producto: ${productoSeleccionado!.nombre} - Total: \$${subtotal.toStringAsFixed(2)}"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+
+                          // Aquí luego guardarás la venta y los detalles
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.green,

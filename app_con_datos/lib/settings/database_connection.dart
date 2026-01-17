@@ -43,6 +43,7 @@ class DatabaseConnection {
           descripcion TEXT,
           precio REAL NOT NULL,
           costo REAL NOT NULL,
+          stock INTEGER NOT NULL,
           categoriaId INTEGER,
           FOREIGN KEY (categoriaId) REFERENCES categories(id)
         );
