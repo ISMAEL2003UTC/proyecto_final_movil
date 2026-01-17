@@ -31,8 +31,6 @@ class _SalesScreenState extends State<SalesScreen> {
   Future<double> calcularGanancia(int ventaId) async {
     final detailRepo = SaleDetailRepository();
     final productsRepo = ProductsRepository();
-
-    // Usamos tu método existente getByVenta
     List<SaleDetailModels> detalles = await detailRepo.getByVenta(ventaId);
     List<ProductsModels> productos = await productsRepo.getAll();
 
@@ -52,11 +50,8 @@ class _SalesScreenState extends State<SalesScreen> {
       );
       ganancia += (detalle.precioUnitario - producto.costo) * detalle.cantidad;
     }
-
     return ganancia;
   }
-
-
 
   Future<void> cargarVentas() async {
     setState(() => cargando = true);
@@ -68,7 +63,6 @@ class _SalesScreenState extends State<SalesScreen> {
   }
   String formatFecha(String fecha) {
     final dt = DateTime.parse(fecha);
-    // YYYY-MM-DD HH:MM
     final anio = dt.year.toString().padLeft(4, '0');
     final mes = dt.month.toString().padLeft(2, '0');
     final dia = dt.day.toString().padLeft(2, '0');

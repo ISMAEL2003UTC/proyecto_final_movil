@@ -10,33 +10,25 @@ import '../../models/sales_models.dart';
 
 class VentasFormScreen extends StatefulWidget {
    VentasFormScreen({super.key});
-
   @override
   State<VentasFormScreen> createState() => _VentasFormScreenState();
 }
 
 class _VentasFormScreenState extends State<VentasFormScreen> {
   final formKey = GlobalKey<FormState>();
-
   final productoController = TextEditingController();
   final cantidadController = TextEditingController();
   final precioController = TextEditingController();
   final clienteController = TextEditingController();
   Key autocompleteKey = UniqueKey();
-
   final ProductsRepository productsRepo = ProductsRepository();
-
   List<ProductsModels> productos = [];
   ProductsModels? productoSeleccionado;
   final ClientsRepository clientsRepo = ClientsRepository();
   List<ClientsModels> clientes = [];
   ClientsModels? clienteSeleccionado;
   Key autocompleteClienteKey = UniqueKey();
-
-
-  // Lista para carrito de compras
   List<SaleDetailModels> carrito = [];
-
   @override
   void initState() {
     super.initState();
@@ -53,11 +45,7 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
     clientes = await clientsRepo.getAll();
     setState(() {});
   }
-
-
-  // Agregar producto al carrito
   void agregarAlCarrito() {
-    // Validar producto seleccionado
     if (productoSeleccionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(
@@ -67,8 +55,6 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
       );
       return;
     }
-
-    // Validar cantidad
     if (cantidadController.text.isEmpty || int.tryParse(cantidadController.text) == null || int.parse(cantidadController.text) <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(
@@ -78,8 +64,6 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
       );
       return;
     }
-
-    // Validar precio
     if (precioController.text.isEmpty || double.tryParse(precioController.text) == null || double.parse(precioController.text) <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
          SnackBar(
@@ -103,86 +87,12 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
 
     setState(() {
       carrito.add(detalle);
-
-      // Limpiar campos
       cantidadController.clear();
       precioController.clear();
-      productoSeleccionado = null;
-      autocompleteKey = UniqueKey(); // Reiniciar Autocomplete
-    });
-  }
-
-  Future<void> finalizarVenta() async {
-    // Validar que haya un cliente seleccionado
-    if (clienteSeleccionado == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
-          content: Text('Seleccione un cliente'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Validar que el carrito no esté vacío
-    if (carrito.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
-          content: Text('El carrito está vacío'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Calcular total
-    final total = carrito.fold<double>(0, (sum, item) => sum + item.subtotal);
-
-    // Crear venta
-    final sale = SaleModels(
-      clienteId: clienteSeleccionado!.id!, // Cliente seleccionado
-      fecha: DateTime.now().toIso8601String(),
-      montoTotal: total,
-    );
-
-    final saleRepo = SaleRepository();
-    final ventaId = await saleRepo.create(sale); // Se guarda la venta y devuelve el id
-
-    // Guardar detalles de la venta
-    final detailRepo = SaleDetailRepository();
-    for (var item in carrito) {
-      final detalle = SaleDetailModels(
-        ventaId: ventaId, // Asociar al id de la venta creada
-        productoId: item.productoId,
-        cantidad: item.cantidad,
-        precioUnitario: item.precioUnitario,
-        subtotal: item.subtotal,
-      );
-      await detailRepo.create(detalle); // Guardar cada producto
-    }
-
-    // Limpiar campos y reiniciar Autocomplete
-    setState(() {
-      carrito.clear();
-      clienteController.clear();
-      productoController.clear();
-      cantidadController.clear();
-      precioController.clear();
-      clienteSeleccionado = null;
       productoSeleccionado = null;
       autocompleteKey = UniqueKey();
-      autocompleteClienteKey = UniqueKey();
     });
-
-    // Mensaje de éxito
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Venta registrada. Total: \$${total.toStringAsFixed(2)}'),
-        backgroundColor: Colors.green,
-      ),
-    );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -196,13 +106,11 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
         padding:  EdgeInsets.all(20),
         child: Column(
           children: [
-            // Formulario de cliente y producto
             Form(
               key: formKey,
               child: Column(
                 children: [
                    SizedBox(height: 15),
-                  // Cliente
                   Autocomplete<ClientsModels>(
                     key: autocompleteClienteKey,
                     optionsBuilder: (TextEditingValue value) {
@@ -289,7 +197,7 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
                                     keyboardType: TextInputType.numberWithOptions(decimal: true),
                                     decoration: InputDecoration(
                                       labelText: 'Precio',
-                                      prefixIcon:  Icon(Icons.price_check),
+                                      prefixIcon:  Icon(Icons.monetization_on_outlined),
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(15),
                                       ),
@@ -392,7 +300,69 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
               width: double.infinity,
               height: 60,
               child: ElevatedButton(
-                onPressed: finalizarVenta,
+                onPressed: () async {
+                  if (clienteSeleccionado == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Seleccione un cliente'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (carrito.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('El carrito está vacío'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
+                  // Crear venta
+                  final total = carrito.fold<double>(0, (sum, item) => sum + item.subtotal);
+                  final sale = SaleModels(
+                    clienteId: clienteSeleccionado!.id!,
+                    fecha: DateTime.now().toIso8601String(),
+                    montoTotal: total,
+                  );
+
+                  final saleRepo = SaleRepository();
+                  final ventaId = await saleRepo.create(sale);
+
+                  final detailRepo = SaleDetailRepository();
+                  for (var item in carrito) {
+                    final detalle = SaleDetailModels(
+                      ventaId: ventaId,
+                      productoId: item.productoId,
+                      cantidad: item.cantidad,
+                      precioUnitario: item.precioUnitario,
+                      subtotal: item.subtotal,
+                    );
+                    await detailRepo.create(detalle);
+                  }
+                  setState(() {
+                    carrito.clear();
+                    clienteController.clear();
+                    productoController.clear();
+                    cantidadController.clear();
+                    precioController.clear();
+                    clienteSeleccionado = null;
+                    productoSeleccionado = null;
+                    autocompleteKey = UniqueKey();
+                    autocompleteClienteKey = UniqueKey();
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Venta registrada. Total: \$${total.toStringAsFixed(2)}'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    Navigator.pop(context);
+                  });
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueAccent,
                 ),
