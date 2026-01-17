@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../models/category_models.dart';
 import '../../models/products_models.dart';
+import '../../repositories/category_repository.dart';
 import '../../repositories/products_repository.dart';
 
 class ProductoScreen extends StatefulWidget {
@@ -14,13 +16,20 @@ class _ProductoScreenState extends State<ProductoScreen> {
   final ProductsRepository repo = ProductsRepository();
   List<ProductsModels> productos = [];
   bool cargando = true;
+  final categoryRepo = CategoryRepository();
+  List<CategoryModels> categorias = [];
+
 
   @override
   void initState() {
     super.initState();
     cargarProducto();
+    cargarCategorias();
   }
-
+  Future<void> cargarCategorias() async {
+    categorias = await categoryRepo.getAll();
+    setState(() {});
+  }
   Future<void> cargarProducto() async {
     setState(() => cargando = true);
     {
@@ -29,6 +38,15 @@ class _ProductoScreenState extends State<ProductoScreen> {
     }
     ;
   }
+  String obtenerNombreCategoria(int? id) {
+    if (id == null) return 'Sin categoría';
+    final cat = categorias.firstWhere(
+          (c) => c.id == id,
+      orElse: () => CategoryModels(id: 0, codigo: '', nombre: 'Desconocida', descripcion: ''),
+    );
+    return cat.nombre;
+  }
+
 
   void eliminarProducto(int id) {
     showDialog(
@@ -94,6 +112,9 @@ class _ProductoScreenState extends State<ProductoScreen> {
                           Text("Descripción: ${prod.descripcion}"),
                           Text("Precio: ${prod.precio.toString()}"),
                           Text("Costo: ${prod.costo.toString()}"),
+                          Text("Stock: ${prod.stock.toString()}"),
+                          Text("Categoría: ${obtenerNombreCategoria(prod.categoriaId)}"),
+
                         ],
                       ),
                       trailing: Row(

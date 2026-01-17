@@ -90,7 +90,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                   }
                   return null;
                 },
-                maxLines: 5,
+                maxLines: 2,
                 decoration: InputDecoration(
                   labelText: 'Descripción',
                   hintText: 'Ingrese el nombre de la descripción',
