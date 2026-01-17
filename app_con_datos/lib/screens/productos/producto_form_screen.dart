@@ -6,7 +6,7 @@ import '../../repositories/products_repository.dart';
 import '../../repositories/category_repository.dart';
 
 class ProductoFormScreen extends StatefulWidget {
-  const ProductoFormScreen({super.key});
+   ProductoFormScreen({super.key});
 
   @override
   State<ProductoFormScreen> createState() => _ProductoFormScreenState();
@@ -71,7 +71,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
         foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding:  EdgeInsets.all(20),
         child: Form(
           key: formProducts,
           child: SingleChildScrollView(
@@ -227,7 +227,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding:  EdgeInsets.all(8.0),
                                     child: Text('Registro exitoso'),
                                   ),
                                   backgroundColor: Colors.green,

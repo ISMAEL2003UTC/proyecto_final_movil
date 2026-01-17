@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../models/clients_models.dart';
 import '../../models/products_models.dart';
 import '../../models/sale_detail_models.dart';
+import '../../repositories/clients_repository.dart';
 import '../../repositories/products_repository.dart';
+import '../../repositories/sales_repository.dart';
+import '../../repositories/sale_detail_repository.dart';
+import '../../models/sales_models.dart';
 
 class VentasFormScreen extends StatefulWidget {
-  const VentasFormScreen({super.key});
+   VentasFormScreen({super.key});
 
   @override
   State<VentasFormScreen> createState() => _VentasFormScreenState();
@@ -17,181 +22,387 @@ class _VentasFormScreenState extends State<VentasFormScreen> {
   final cantidadController = TextEditingController();
   final precioController = TextEditingController();
   final clienteController = TextEditingController();
+  Key autocompleteKey = UniqueKey();
 
   final ProductsRepository productsRepo = ProductsRepository();
 
   List<ProductsModels> productos = [];
   ProductsModels? productoSeleccionado;
+  final ClientsRepository clientsRepo = ClientsRepository();
+  List<ClientsModels> clientes = [];
+  ClientsModels? clienteSeleccionado;
+  Key autocompleteClienteKey = UniqueKey();
+
+
+  // Lista para carrito de compras
+  List<SaleDetailModels> carrito = [];
 
   @override
   void initState() {
     super.initState();
     cargarProductos();
+    cargarClientes();
+
   }
 
   Future<void> cargarProductos() async {
     productos = await productsRepo.getAll();
     setState(() {});
   }
+  Future<void> cargarClientes() async {
+    clientes = await clientsRepo.getAll();
+    setState(() {});
+  }
+
+
+  // Agregar producto al carrito
+  void agregarAlCarrito() {
+    // Validar producto seleccionado
+    if (productoSeleccionado == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+          content: Text('Seleccione un producto'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Validar cantidad
+    if (cantidadController.text.isEmpty || int.tryParse(cantidadController.text) == null || int.parse(cantidadController.text) <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+          content: Text('Ingrese una cantidad válida'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Validar precio
+    if (precioController.text.isEmpty || double.tryParse(precioController.text) == null || double.parse(precioController.text) <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+          content: Text('Ingrese un precio válido'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final cantidad = int.parse(cantidadController.text);
+    final subtotal = productoSeleccionado!.precio * cantidad;
+
+    final detalle = SaleDetailModels(
+      ventaId: 0,
+      productoId: productoSeleccionado!.id!,
+      cantidad: cantidad,
+      precioUnitario: productoSeleccionado!.precio,
+      subtotal: subtotal,
+    );
+
+    setState(() {
+      carrito.add(detalle);
+
+      // Limpiar campos
+      cantidadController.clear();
+      precioController.clear();
+      productoSeleccionado = null;
+      autocompleteKey = UniqueKey(); // Reiniciar Autocomplete
+    });
+  }
+
+  Future<void> finalizarVenta() async {
+    // Validar que haya un cliente seleccionado
+    if (clienteSeleccionado == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+          content: Text('Seleccione un cliente'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Validar que el carrito no esté vacío
+    if (carrito.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+          content: Text('El carrito está vacío'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Calcular total
+    final total = carrito.fold<double>(0, (sum, item) => sum + item.subtotal);
+
+    // Crear venta
+    final sale = SaleModels(
+      clienteId: clienteSeleccionado!.id!, // Cliente seleccionado
+      fecha: DateTime.now().toIso8601String(),
+      montoTotal: total,
+    );
+
+    final saleRepo = SaleRepository();
+    final ventaId = await saleRepo.create(sale); // Se guarda la venta y devuelve el id
+
+    // Guardar detalles de la venta
+    final detailRepo = SaleDetailRepository();
+    for (var item in carrito) {
+      final detalle = SaleDetailModels(
+        ventaId: ventaId, // Asociar al id de la venta creada
+        productoId: item.productoId,
+        cantidad: item.cantidad,
+        precioUnitario: item.precioUnitario,
+        subtotal: item.subtotal,
+      );
+      await detailRepo.create(detalle); // Guardar cada producto
+    }
+
+    // Limpiar campos y reiniciar Autocomplete
+    setState(() {
+      carrito.clear();
+      clienteController.clear();
+      productoController.clear();
+      cantidadController.clear();
+      precioController.clear();
+      clienteSeleccionado = null;
+      productoSeleccionado = null;
+      autocompleteKey = UniqueKey();
+      autocompleteClienteKey = UniqueKey();
+    });
+
+    // Mensaje de éxito
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Venta registrada. Total: \$${total.toStringAsFixed(2)}'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Registrar Venta"),
+        title:  Text("Nueva Venta"),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: formKey,
-          child: Column(
-            children: [
-              /// PRODUCTO (AUTOCOMPLETE)
-              Autocomplete<ProductsModels>(
-                optionsBuilder: (TextEditingValue value) {
-                  if (value.text.isEmpty) {
-                    return const Iterable<ProductsModels>.empty();
-                  }
-                  return productos.where(
-                        (p) => p.nombre
-                        .toLowerCase()
-                        .contains(value.text.toLowerCase()),
-                  );
-                },
-                displayStringForOption: (option) => option.nombre,
-                onSelected: (selection) {
-                  productoSeleccionado = selection;
-                  productoController.text = selection.nombre;
-                  precioController.text = selection.precio.toString();
-                },
-                fieldViewBuilder:
-                    (context, controller, focusNode, onFieldSubmitted) {
-                  return TextFormField(
-                    controller: controller,
-                    focusNode: focusNode,
-                    validator: (_) => productoSeleccionado == null
-                        ? 'Seleccione un producto'
-                        : null,
-                    decoration: InputDecoration(
-                      labelText: 'Producto',
-                      prefixIcon: const Icon(Icons.shopping_bag),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 15),
-
-              /// CANTIDAD
-              TextFormField(
-                controller: cantidadController,
-                keyboardType: TextInputType.number,
-                validator: (value) =>
-                value == null || value.isEmpty ? 'Ingrese cantidad' : null,
-                decoration: InputDecoration(
-                  labelText: 'Cantidad',
-                  prefixIcon: const Icon(Icons.numbers),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 15),
-
-              /// CLIENTE
-              TextFormField(
-                controller: clienteController,
-                validator: (value) =>
-                value == null || value.isEmpty ? "Ingrese el cliente" : null,
-                decoration: InputDecoration(
-                  labelText: 'Cliente',
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              /// BOTONES ACEPTAR / CANCELAR
-              Row(
+        padding:  EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Formulario de cliente y producto
+            Form(
+              key: formKey,
+              child: Column(
                 children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 60,
-                      child: TextButton(
-                        onPressed: () {
-                          if (!formKey.currentState!.validate()) return;
-                          if (productoSeleccionado == null) return;
-
-                          final subtotal = productoSeleccionado!.precio *
-                              int.parse(cantidadController.text);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  "Producto: ${productoSeleccionado!.nombre} - Total: \$${subtotal.toStringAsFixed(2)}"),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-
-                          // Aquí luego guardarás la venta y los detalles
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                   SizedBox(height: 15),
+                  // Cliente
+                  Autocomplete<ClientsModels>(
+                    key: autocompleteClienteKey,
+                    optionsBuilder: (TextEditingValue value) {
+                      if (value.text.isEmpty) return  Iterable<ClientsModels>.empty();
+                      return clientes.where((c) =>
+                          c.nombre.toLowerCase().contains(value.text.toLowerCase()));
+                    },
+                    displayStringForOption: (option) => option.nombre,
+                    onSelected: (selection) {
+                      clienteSeleccionado = selection;
+                      clienteController.text = selection.nombre;
+                    },
+                    fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                      return TextFormField(
+                        controller: textEditingController,
+                        focusNode: focusNode,
+                        decoration: InputDecoration(
+                          labelText: 'Cliente',
+                          prefixIcon: Icon(Icons.person),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15),
                           ),
                         ),
+                        validator: (_) =>
+                        clienteSeleccionado == null ? 'Seleccione un cliente' : null,
+                      );
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.save, color: Colors.white),
-                            SizedBox(height: 5),
-                            Text('Aceptar'),
+                          children: [
+                            Autocomplete<ProductsModels>(
+                              key: autocompleteKey,
+                              optionsBuilder: (TextEditingValue value) {
+                                if (value.text.isEmpty) return  Iterable<ProductsModels>.empty();
+                                return productos.where((p) =>
+                                    p.nombre.toLowerCase().contains(value.text.toLowerCase()));
+                              },
+                              displayStringForOption: (option) => option.nombre,
+                              onSelected: (selection) {
+                                productoSeleccionado = selection;
+                                cantidadController.text = '1';
+                                precioController.text = selection.precio.toStringAsFixed(2);
+                              },
+                              fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                                return TextFormField(
+                                  controller: textEditingController,
+                                  focusNode: focusNode,
+                                  decoration: InputDecoration(
+                                    labelText: 'Producto',
+                                    prefixIcon:  Icon(Icons.shopping_bag),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                             SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: cantidadController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Cantidad',
+                                      prefixIcon:  Icon(Icons.numbers),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                 SizedBox(width: 10),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: precioController,
+                                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                                    decoration: InputDecoration(
+                                      labelText: 'Precio',
+                                      prefixIcon:  Icon(Icons.price_check),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
+                       SizedBox(width: 15),
+                      SizedBox(
+                        height: 120,
+                        child: TextButton(
+                          onPressed: agregarAlCarrito,
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children:  [
+                              Icon(Icons.add_circle_outline_outlined, color: Colors.white,size: 40,),
+                              SizedBox(height: 5),
+                              Text('Agregar'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                   SizedBox(height: 20),
+                ],
+              ),
+            ),
+            Expanded(
+              child: carrito.isEmpty
+                  ?  Center(child: Text('No hay productos agregados'))
+                  : ListView.builder(
+                itemCount: carrito.length,
+                itemBuilder: (context, index) {
+                  final item = carrito[index];
+                  final producto = productos.firstWhere(
+                        (p) => p.id == item.productoId,
+                    orElse: () => ProductsModels(
+                      id: 0,
+                      nombre: 'Producto desconocido',
+                      precio: 0,
+                      codigo: '',
+                      costo: 0,
+                      descripcion: '',
+                      stock: 0,
+                    ),
+                  );
+
+                  return ListTile(
+                    title: Text(producto.nombre),
+                    subtitle: Text(
+                      '${item.cantidad} x \$${item.precioUnitario.toStringAsFixed(2)} = \$${item.subtotal.toStringAsFixed(2)}',
+                    ),
+                    trailing: IconButton(
+                      icon:  Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          carrito.removeAt(index);
+                        });
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+            Container(
+              padding:  EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                   Text(
+                    'Total:',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: SizedBox(
-                      height: 60,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.cancel, color: Colors.white),
-                            SizedBox(height: 5),
-                            Text('Cancelar'),
-                          ],
-                        ),
-                      ),
+                  Text(
+                    '\$${carrito.fold<double>(0, (sum, item) => sum + item.subtotal).toStringAsFixed(2)}',
+                    style:  TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: ElevatedButton(
+                onPressed: finalizarVenta,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                ),
+                child:  Text(
+                  'Finalizar Venta',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

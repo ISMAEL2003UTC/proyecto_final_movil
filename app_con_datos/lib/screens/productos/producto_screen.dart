@@ -6,7 +6,7 @@ import '../../repositories/category_repository.dart';
 import '../../repositories/products_repository.dart';
 
 class ProductoScreen extends StatefulWidget {
-  const ProductoScreen({super.key});
+   ProductoScreen({super.key});
 
   @override
   State<ProductoScreen> createState() => _ProductoScreenState();
@@ -87,7 +87,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
           : productos.isEmpty
           ? Center(child: Text('No existen productos'))
           : Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding:  EdgeInsets.all(8.0),
               child: ListView.builder(
                 itemCount: productos.length,
                 itemBuilder: (context, i) {

@@ -4,7 +4,7 @@ import '../../models/clients_models.dart';
 import '../../repositories/clients_repository.dart';
 
 class ClienteScreen extends StatefulWidget {
-  const ClienteScreen({super.key});
+   ClienteScreen({super.key});
 
   @override
   State<ClienteScreen> createState() => _ClienteScreenState();
@@ -69,7 +69,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
           : clientes.isEmpty
           ? Center(child: Text('No existen clientes'))
           : Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding:  EdgeInsets.all(8.0),
               child: ListView.builder(
                 itemCount: clientes.length,
                 itemBuilder: (context, i) {
@@ -96,7 +96,6 @@ class _ClienteScreenState extends State<ClienteScreen> {
                           Text("Dirección: ${cli.direccion}"),
                           Text("Teléfono: ${cli.telefono}"),
                           Text("Correo: ${cli.correo}"),
-                          Text("Fecha de Nacimiento: ${cli.fechaNacimiento}"),
                         ],
                       ),
                       trailing: Row(

@@ -72,7 +72,7 @@ class DatabaseConnection {
           correop TEXT NOT NULL
         );
         ''');
-
+        // Tabla de gastos
         await db.execute('''
         CREATE TABLE expenses(
           id INTEGER PRIMARY KEY AUTOINCREMENT,

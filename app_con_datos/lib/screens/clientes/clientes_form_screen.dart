@@ -4,7 +4,7 @@ import '../../models/clients_models.dart';
 import '../../repositories/clients_repository.dart';
 
 class ClienteFormScreen extends StatefulWidget {
-  const ClienteFormScreen({super.key});
+   ClienteFormScreen({super.key});
   @override
   State<ClienteFormScreen> createState() => _ClienteFormScreenState();
 }
@@ -16,7 +16,6 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
   final direccionController = TextEditingController();
   final telefonoController = TextEditingController();
   final correoController = TextEditingController();
-  final fechaController = TextEditingController();
   ClientsModels? cliente;
   @override
   void didChangeDependencies() {
@@ -30,7 +29,6 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
       direccionController.text = cliente!.direccion;
       telefonoController.text = cliente!.telefono;
       correoController.text = cliente!.correo;
-      fechaController.text = cliente!.fechaNacimiento;
     }
   }
 
@@ -45,7 +43,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
         foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding:  EdgeInsets.all(20),
         child: Form(
           key: formClients,
           child: Column(
@@ -147,29 +145,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
               ),
               SizedBox(height: 15),
 
-              TextFormField(
-                controller: fechaController,
 
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "La fecha de nacimiento es requerido";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Fecha de nacimiento',
-                  hintText: 'Ingrese la fecha de nacimiento',
-                  prefixIcon: Icon(
-                    Icons.calendar_month_outlined,
-                    color: Colors.black,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 10),
 
               Row(
                 children: [
@@ -187,7 +163,6 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                               direccion: direccionController.text,
                               telefono: telefonoController.text,
                               correo: correoController.text,
-                              fechaNacimiento: fechaController.text,
                             );
                             if (esEditar) {
                               clients.id = cliente!.id;
@@ -199,7 +174,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding:  EdgeInsets.all(8.0),
                                 child: Text('Registro exitoso'),
                               ),
                               backgroundColor: Colors.green,
