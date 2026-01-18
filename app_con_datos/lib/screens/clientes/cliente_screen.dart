@@ -30,31 +30,66 @@ class _ClienteScreenState extends State<ClienteScreen> {
     ;
   }
 
-  void eliminarCliente(int id) {
+  void eliminarCliente(int id) async {
+    // Verifico si el cliente tiene ventas
+    final ventasRelacionadas = await repo.getSalesByClientId(id);
+
+    if (ventasRelacionadas.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'No se puede eliminar el cliente. Tiene ventas registradas.',
+            textAlign: TextAlign.center,
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Eliminar Cliente'),
-        content: Text('Estas seguro que deseas eliminar este Cliente?'),
+        title: const Text('Eliminar Cliente'),
+        content: const Text('¿Estás seguro que deseas eliminar este cliente?'),
         actions: [
           TextButton(
             onPressed: () async {
               await repo.delete(id);
               Navigator.pop(context);
-              cargarClientes();
+              await cargarClientes();
+              // SnackBar de éxito
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                    'Cliente eliminado',
+                    textAlign: TextAlign.center,
+                  ),
+                  duration: const Duration(milliseconds: 800),
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
             },
-            child: Text('Si'),
+            child: const Text('Sí'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('No'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('No'),
           ),
         ],
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -89,28 +124,28 @@ class _ClienteScreenState extends State<ClienteScreen> {
                           children: [
                       Row(
                       children: [
-                      Icon(Icons.badge, size: 16), // para Cédula
+                      Icon(Icons.badge, size: 16),
                       SizedBox(width: 5),
                       Text("${cli.cedula}"),
                       ],
                     ),
                     Row(
                       children: [
-                        Icon(Icons.home, size: 16), // para Dirección
+                        Icon(Icons.home, size: 16),
                         SizedBox(width: 5),
                         Text("${cli.direccion}"),
                       ],
                     ),
                     Row(
                       children: [
-                        Icon(Icons.phone, size: 16), // para Teléfono
+                        Icon(Icons.phone, size: 16),
                         SizedBox(width: 5),
                         Text("${cli.telefono}"),
                       ],
                     ),
                     Row(
                       children: [
-                        Icon(Icons.email, size: 16), // para Correo
+                        Icon(Icons.email, size: 16),
                         SizedBox(width: 5),
                         Text("${cli.correo}"),
                       ],

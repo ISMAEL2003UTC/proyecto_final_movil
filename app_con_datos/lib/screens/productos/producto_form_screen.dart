@@ -34,21 +34,15 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
     cargarCategorias();
   }
 
-  void cargarCategorias() async {
-    categorias = await categoryRepo.getAll();
-    // Si estamos editando, seleccionamos la categoría actual del producto
-    if (producto != null) {
-      selectedCategoriaId = producto!.categoriaId;
-    }
-    setState(() {});
-  }
+
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
     // Capturo el producto si se envía por argumentos
-    final args = ModalRoute.of(context)!.settings.arguments;
-    if (args != null) {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args != null && producto == null) {
       producto = args as ProductsModels;
       codigoController.text = producto!.codigo;
       nombreController.text = producto!.nombre;
@@ -56,8 +50,17 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
       precioController.text = producto!.precio.toString();
       costoController.text = producto!.costo.toString();
       stockController.text = producto!.stock.toString();
+    }
+  }
+
+  void cargarCategorias() async {
+    categorias = await categoryRepo.getAll();
+    // Si estamos editando, seleccionamos la categoría actual del producto
+    if (producto != null) {
       selectedCategoriaId = producto!.categoriaId;
     }
+
+    setState(() {});
   }
 
   @override
@@ -123,14 +126,23 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                 ),
                 SizedBox(height: 15),
 
-                // Precio
+                // Precio venta
                 TextFormField(
                   controller: precioController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) return "El precio es requerido";
+
+                    final double? precio = double.tryParse(value);
+                    if (precio == null) return "Ingrese un número válido";
+
+                    final double? costo = double.tryParse(costoController.text);
+                    if (costo != null && precio <= costo) {
+                      return "El precio de venta debe ser mayor al costo";
+                    }
+
                     return null;
                   },
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: 'Precio Venta',
                     prefixIcon: Icon(Icons.attach_money, color: Colors.black),
@@ -139,14 +151,23 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                 ),
                 SizedBox(height: 15),
 
-                // Costo
+                // precioCosto
                 TextFormField(
                   controller: costoController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
                     if (value == null || value.isEmpty) return "El costo es requerido";
+
+                    final double? costo = double.tryParse(value);
+                    if (costo == null) return "Ingrese un número válido";
+
+                    final double? precio = double.tryParse(precioController.text);
+                    if (precio != null && precio <= costo) {
+                      return "El precio de costo debe ser menor al de venta";
+                    }
+
                     return null;
                   },
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: 'Costo',
                     prefixIcon: Icon(Icons.money_off, color: Colors.black),
@@ -207,6 +228,34 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                           onPressed: () async {
                             if (formProducts.currentState!.validate()) {
                               final repo = ProductsRepository();
+                              final allProducts = await repo.getAll();
+
+                              bool codigoRepetido = allProducts.any(
+                                      (p) => p.codigo.toLowerCase() == codigoController.text.toLowerCase() && p.id != (producto?.id ?? 0)
+                              );
+                              if (codigoRepetido) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('El código ya está registrado'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return; // Detener guardado
+                              }
+                              // Validar nombre único
+                              bool nombreRepetido = allProducts.any(
+                                      (p) => p.nombre.toLowerCase() == nombreController.text.toLowerCase() && p.id != (producto?.id ?? 0)
+                              );
+                              if (nombreRepetido) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('El nombre del producto ya está registrado'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                                return; // Detener guardado
+                              }
+
                               final products = ProductsModels(
                                 codigo: codigoController.text,
                                 nombre: nombreController.text,
@@ -217,7 +266,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                                 categoriaId: selectedCategoriaId,
                               );
 
-                              if (esEditar) {
+                              if (producto != null) {
                                 products.id = producto!.id;
                                 await repo.edit(products);
                               } else {
@@ -226,17 +275,21 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Padding(
-                                    padding:  EdgeInsets.all(8.0),
-                                    child: Text('Registro exitoso'),
+                                  content: Text(
+                                    esEditar ? 'Actualización exitosa' : 'Registro Exitoso',
+                                    textAlign: TextAlign.center,
                                   ),
+                                  duration: Duration(milliseconds: 500),
                                   backgroundColor: Colors.green,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
                                 ),
                               );
 
-                              Future.delayed(Duration(milliseconds: 500), () {
-                                Navigator.pop(context);
-                              });
+                              await Future.delayed(Duration(milliseconds: 650));
+                              Navigator.pop(context);
                             }
                           },
                           style: TextButton.styleFrom(

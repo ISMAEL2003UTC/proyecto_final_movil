@@ -33,7 +33,6 @@ class _SalesScreenState extends State<SalesScreen> {
     final productsRepo = ProductsRepository();
     List<SaleDetailModels> detalles = await detailRepo.getByVenta(ventaId);
     List<ProductsModels> productos = await productsRepo.getAll();
-
     double ganancia = 0;
     for (var detalle in detalles) {
       final producto = productos.firstWhere(

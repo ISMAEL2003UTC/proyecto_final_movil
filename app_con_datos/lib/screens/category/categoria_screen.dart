@@ -27,18 +27,53 @@ class _CategoryScreenState extends State<CategoryScreen> {
     setState(() => cargando = false);
   }
 
-  void eliminarCategoria(int id) {
+  void eliminarCategoria(int id) async {
+    // Verifico si hay productos asociados
+    final productosRelacionados = await repo.getProductsByCategoryId(id);
+
+    if (productosRelacionados.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'No se puede eliminar la categoría. Existen productos relacionados.',
+            textAlign: TextAlign.center,
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Eliminar Categoria'),
+        title: const Text('Eliminar Categoría'),
         content: const Text('¿Estás seguro que deseas eliminar esta categoría?'),
         actions: [
           TextButton(
             onPressed: () async {
               await repo.delete(id);
               Navigator.pop(context);
-              cargarCategoria();
+              await cargarCategoria();
+              // SnackBar de éxito
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                    'Categoría eliminada',
+                    textAlign: TextAlign.center,
+                  ),
+                  duration: const Duration(milliseconds: 800),
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
             },
             child: const Text('Sí'),
           ),
@@ -50,6 +85,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

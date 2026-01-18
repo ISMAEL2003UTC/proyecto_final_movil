@@ -52,19 +52,52 @@ class _ProductoScreenState extends State<ProductoScreen> {
   }
 
 
-  void eliminarProducto(int id) {
+  void eliminarProducto(int id) async {
+    // Verifico si el producto está en alguna venta
+    final ventasRelacionadas = await repo.getSalesByProductId(id);
+
+    if (ventasRelacionadas.isNotEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'No se puede eliminar el producto. Está relacionado con ventas.',
+            textAlign: TextAlign.center,
+          ),
+          duration: const Duration(seconds: 2),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Eliminar Producto'),
-        content:
-        const Text('¿Estás seguro que deseas eliminar este producto?'),
+        content: const Text('¿Estás seguro que deseas eliminar este producto?'),
         actions: [
           TextButton(
             onPressed: () async {
               await repo.delete(id);
               Navigator.pop(context);
-              cargarProducto();
+              await cargarProducto();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                    'Producto eliminado',
+                    textAlign: TextAlign.center,
+                  ),
+                  duration: const Duration(milliseconds: 800),
+                  backgroundColor: Colors.green,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              );
             },
             child: const Text('Sí'),
           ),
@@ -76,6 +109,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

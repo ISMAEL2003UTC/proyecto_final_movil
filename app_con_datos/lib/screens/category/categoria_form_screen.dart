@@ -92,28 +92,49 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                           if (formCategory.currentState!.validate()) {
                             //almacenar datos
                             final repo = CategoryRepository();
+                            // Traigo todas las categorías
+                            final allCategories = await repo.getAll();
+                            // Verifico si el nombre ya existe
+                            bool nombreRepetido = allCategories.any(
+                                    (c) => c.nombre.toLowerCase() == nombreController.text.toLowerCase() && c.id != (categoria?.id ?? 0)
+                            );
+                            if (nombreRepetido) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('La categoría ya existe'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+
                             final category = CategoryModels(
                               nombre: nombreController.text,
                               descripcion: descripcionController.text,
                             );
-                            if (esEditar) {
+                            if (categoria != null) {
                               category.id = categoria!.id;
                               await repo.edit(category);
                             } else {
                               await repo.create(category);
                             }
-
-
-                          //await repo.create(category);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Registro exitoso'),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  esEditar ? 'Actualización exitosa' : 'Registro Exitoso',
+                                  textAlign: TextAlign.center,
+                                ),
+                                duration: Duration(milliseconds: 500),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
+                            );
+
+                            await Future.delayed(Duration(milliseconds: 650));
                             Navigator.pop(context);
                           }
                         },
