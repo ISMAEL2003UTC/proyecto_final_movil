@@ -8,6 +8,8 @@ import 'screens/clientes/clientes_form_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/productos/producto_form_screen.dart';
 import 'screens/productos/producto_screen.dart';
+import 'screens/providers/providers_form_screen.dart';
+import 'screens/providers/provider_screen.dart';
 
 void main() => runApp(const MyApp());
 
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
         '/producto/form': (context) => ProductoFormScreen(),
         '/cliente/form': (context) => ClienteFormScreen(),
         '/producto': (context) => ProductoScreen(),
+        '/provider': (context) => ProviderScreen(),
+        '/provider/form': (context) => ProvidersFormScreen(),
         '/cliente': (context) => ClienteScreen(),
         '/ventas': (context) => SalesScreen(),
         '/ventas/form': (context) => VentasFormScreen(),

@@ -243,7 +243,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/proveedor');
+                    Navigator.pushNamed(context, '/provider');
                   },
                   style: TextButton.styleFrom(padding: EdgeInsets.zero),
                   child: Container(
