@@ -92,6 +92,9 @@ class HomeScreen extends StatelessWidget {
                         ],
                       ),
                     ),
+
+// ---------------------------------------------------------------------------------------
+
                     Container(width: 1, height: 60, color: Colors.grey),
                     Expanded(
                       child: Column(
@@ -332,7 +335,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/ventas');
+                    Navigator.pushNamed(context, '/lista_gastos');
                   },
                   style: TextButton.styleFrom(padding: EdgeInsets.zero),
                   child: Container(

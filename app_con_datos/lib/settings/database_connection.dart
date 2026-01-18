@@ -71,13 +71,15 @@ class DatabaseConnection {
           correop TEXT NOT NULL
         );
         ''');
-
+// tabla gasttos --------------------------------------
         await db.execute('''
-        CREATE TABLE expenses(
+        CREATE TABLE gastos(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           nombre TEXT NOT NULL,
           descripcion TEXT,
-          monto REAL NOT NULL
+          monto REAL NOT NULL,
+          fecha TEXT NOT NULL,
+          tipo TEXT NOT NULL
         );
       ''');
 
