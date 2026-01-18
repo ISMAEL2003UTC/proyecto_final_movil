@@ -78,25 +78,44 @@ class _ClienteScreenState extends State<ClienteScreen> {
                     child: ListTile(
                       title: Row(
                         children: [
-                          Icon(Icons.person),
+                          Icon(Icons.person, size: 16,fontWeight: FontWeight.bold),
                           SizedBox(width: 5),
-
-                          Text(
-                            cli.nombre,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
+                          Text("${cli.nombre}"),
                         ],
                       ),
 
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Cédula: ${cli.cedula}"),
-
-                          Text("Dirección: ${cli.direccion}"),
-                          Text("Teléfono: ${cli.telefono}"),
-                          Text("Correo: ${cli.correo}"),
-                        ],
+                          children: [
+                      Row(
+                      children: [
+                      Icon(Icons.badge, size: 16), // para Cédula
+                      SizedBox(width: 5),
+                      Text("${cli.cedula}"),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.home, size: 16), // para Dirección
+                        SizedBox(width: 5),
+                        Text("${cli.direccion}"),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.phone, size: 16), // para Teléfono
+                        SizedBox(width: 5),
+                        Text("${cli.telefono}"),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.email, size: 16), // para Correo
+                        SizedBox(width: 5),
+                        Text("${cli.correo}"),
+                      ],
+                    ),
+                      ],
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,

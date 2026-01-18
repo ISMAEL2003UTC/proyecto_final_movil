@@ -12,7 +12,6 @@ class CategoryFormScreen extends StatefulWidget {
 
 class _CategoryFormScreenState extends State<CategoryFormScreen> {
   final formCategory = GlobalKey<FormState>();
-  final codigoController = TextEditingController();
   final nombreController = TextEditingController();
   final descripcionController = TextEditingController();
   CategoryModels? categoria;
@@ -23,7 +22,6 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
     final args = ModalRoute.of(context)!.settings.arguments;
     if (args != null) {
       categoria = args as CategoryModels;
-      codigoController.text = categoria!.codigo;
       nombreController.text = categoria!.nombre;
       descripcionController.text = categoria!.descripcion;
     }
@@ -44,25 +42,6 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
           key: formCategory,
           child: Column(
             children: [
-              TextFormField(
-                controller: codigoController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "El código es requerido";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Código',
-                  hintText: 'Ingrese el código de la categoría',
-                  prefixIcon: Icon(Icons.barcode_reader, color: Colors.black),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 15),
               TextFormField(
                 controller: nombreController,
                 validator: (value) {
@@ -114,7 +93,6 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                             //almacenar datos
                             final repo = CategoryRepository();
                             final category = CategoryModels(
-                              codigo: codigoController.text,
                               nombre: nombreController.text,
                               descripcion: descripcionController.text,
                             );
@@ -124,7 +102,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                             } else {
                               await repo.create(category);
                             }
-                          }
+
 
                           //await repo.create(category);
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -136,9 +114,8 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                               backgroundColor: Colors.green,
                             ),
                           );
-                          Future.delayed(Duration(microseconds: 500), () {
                             Navigator.pop(context);
-                          });
+                          }
                         },
 
                         style: TextButton.styleFrom(

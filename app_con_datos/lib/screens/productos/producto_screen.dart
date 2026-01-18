@@ -6,7 +6,7 @@ import '../../repositories/category_repository.dart';
 import '../../repositories/products_repository.dart';
 
 class ProductoScreen extends StatefulWidget {
-   ProductoScreen({super.key});
+  const ProductoScreen({super.key});
 
   @override
   State<ProductoScreen> createState() => _ProductoScreenState();
@@ -14,11 +14,11 @@ class ProductoScreen extends StatefulWidget {
 
 class _ProductoScreenState extends State<ProductoScreen> {
   final ProductsRepository repo = ProductsRepository();
-  List<ProductsModels> productos = [];
-  bool cargando = true;
-  final categoryRepo = CategoryRepository();
-  List<CategoryModels> categorias = [];
+  final CategoryRepository categoryRepo = CategoryRepository();
 
+  List<ProductsModels> productos = [];
+  List<CategoryModels> categorias = [];
+  bool cargando = true;
 
   @override
   void initState() {
@@ -26,23 +26,27 @@ class _ProductoScreenState extends State<ProductoScreen> {
     cargarProducto();
     cargarCategorias();
   }
+
   Future<void> cargarCategorias() async {
     categorias = await categoryRepo.getAll();
     setState(() {});
   }
+
   Future<void> cargarProducto() async {
     setState(() => cargando = true);
-    {
-      productos = await repo.getAll();
-      setState(() => cargando = false);
-    }
-    ;
+    productos = await repo.getAll();
+    setState(() => cargando = false);
   }
+
   String obtenerNombreCategoria(int? id) {
     if (id == null) return 'Sin categoría';
     final cat = categorias.firstWhere(
           (c) => c.id == id,
-      orElse: () => CategoryModels(id: 0, codigo: '', nombre: 'Desconocida', descripcion: ''),
+      orElse: () => CategoryModels(
+        id: 0,
+        nombre: 'Desconocida',
+        descripcion: '',
+      ),
     );
     return cat.nombre;
   }
@@ -52,8 +56,9 @@ class _ProductoScreenState extends State<ProductoScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: Text('Eliminar Producto'),
-        content: Text('Estas seguro que deseas eliminar este Producto?'),
+        title: const Text('Eliminar Producto'),
+        content:
+        const Text('¿Estás seguro que deseas eliminar este producto?'),
         actions: [
           TextButton(
             onPressed: () async {
@@ -61,13 +66,11 @@ class _ProductoScreenState extends State<ProductoScreen> {
               Navigator.pop(context);
               cargarProducto();
             },
-            child: Text('Si'),
+            child: const Text('Sí'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('No'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('No'),
           ),
         ],
       ),
@@ -78,62 +81,116 @@ class _ProductoScreenState extends State<ProductoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Listado de Productos'),
+        title: const Text('Listado de Productos'),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
       ),
       body: cargando
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : productos.isEmpty
-          ? Center(child: Text('No existen productos'))
+          ? const Center(child: Text('No existen productos'))
           : Padding(
-              padding:  EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(0),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              color: Colors.blueAccent, // Color azul
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    'PRODUCTO',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'STOCK',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'TOTAL',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    'ACCIONES',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
               child: ListView.builder(
                 itemCount: productos.length,
                 itemBuilder: (context, i) {
                   final prod = productos[i];
                   return Card(
-                    child: ListTile(
-                      title: Row(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(Icons.inventory_2),
-                          SizedBox(width: 5),
-                          Text(
-                            prod.nombre,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              prod.nombre,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
 
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Código: ${prod.codigo}"),
-                          Text("Descripción: ${prod.descripcion}"),
-                          Text("Precio: ${prod.precio.toString()}"),
-                          Text("Costo: ${prod.costo.toString()}"),
-                          Text("Stock: ${prod.stock.toString()}"),
-                          Text("Categoría: ${obtenerNombreCategoria(prod.categoriaId)}"),
-
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () async {
-                              await Navigator.pushNamed(
-                                context,
-                                '/producto/form',
-                                arguments: prod,
-                              );
-                              cargarProducto();
-                            },
-                            icon: Icon(Icons.edit, color: Colors.orange),
+                              ),
+                            ),
                           ),
-                          IconButton(
-                            onPressed: () => eliminarProducto(prod.id as int),
-                            icon: Icon(Icons.delete, color: Colors.red),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              prod.stock.toString(),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              (prod.costo * prod.stock).toString(),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit, color: Colors.orange),
+                                onPressed: () async {
+                                  await Navigator.pushNamed(
+                                    context,
+                                    '/producto/form',
+                                    arguments: prod,
+                                  );
+                                  cargarProducto();
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.red),
+                                onPressed: () => eliminarProducto(prod.id as int),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -142,16 +199,52 @@ class _ProductoScreenState extends State<ProductoScreen> {
                 },
               ),
             ),
+            Container(
+              width: double.infinity,
+              color: Colors.blueAccent,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'TOTAL INVENTARIO',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,color: Colors.white
+                    ),
+                  ),
+                  Text(
+                    productos.fold(0.0, (sum, prod) => sum + (prod.costo * prod.stock))
+                        .toStringAsFixed(2),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                    ),
+                  ),
 
-      floatingActionButton: FloatingActionButton(
+
+                ],
+              ),
+            ),
+
+
+          ],
+        ),
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: FloatingActionButton(
         onPressed: () async {
           await Navigator.pushNamed(context, '/producto/form');
           cargarProducto();
         },
-        child: Icon(Icons.add_circle_outline, color: Colors.white),
         backgroundColor: Colors.black,
-        shape: CircleBorder(),
+        shape: const CircleBorder(),
+        child:
+        const Icon(Icons.add_circle_outline, color: Colors.white),
       ),
+      )
     );
   }
 }
