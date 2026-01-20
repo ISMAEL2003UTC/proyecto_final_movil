@@ -12,6 +12,9 @@ import 'screens/productos/producto_form_screen.dart';
 import 'screens/productos/producto_screen.dart';
 import 'screens/providers/providers_form_screen.dart';
 import 'screens/providers/provider_screen.dart';
+//compras
+import 'screens/compras/compra_screen.dart';
+import 'screens/compras/compra_form_screen.dart';
 
 void main() => runApp(const MyApp());
 
@@ -37,6 +40,9 @@ class MyApp extends StatelessWidget {
         '/ventas/form': (context) => VentasFormScreen(),
         '/lista_gastos': (context) => GastoScreen(),
         '/gastos/form': (context) => GastoFormScreen(),
+        //compras
+        '/compras': (context) => CompraScreen(),
+        '/compra/form': (context) => CompraFormScreen(),
       },
     );
   }

@@ -5,6 +5,7 @@ import '../settings/database_connection.dart';
 class ProductsRepository {
   final tableName = "products";
   final database = DatabaseConnection();
+  
   // funcion para insertar datos
   Future<int> create(ProductsModels data) async {
     final db = await database.db; //1. llamar a la conexion
@@ -38,7 +39,8 @@ class ProductsRepository {
     final response = await db.query(tableName);
     return response.map((e) => ProductsModels.fromMap(e)).toList();
   }
-// NUEVO: obtener ventas relacionadas con un producto
+
+  // NUEVO: obtener ventas relacionadas con un producto
   Future<List<SaleDetailModels>> getSalesByProductId(int productId) async {
     final db = await database.db;
     final response = await db.query(
@@ -47,5 +49,16 @@ class ProductsRepository {
       whereArgs: [productId],
     );
     return response.map((e) => SaleDetailModels.fromMap(e)).toList();
+  }
+
+  // MÉTODO PARA ACTUALIZAR STOCK - SOLO AGREGADO
+  Future<int> updateStock(int productId, double newStock) async {
+    final db = await database.db;
+    return await db.update(
+      tableName,
+      {'stock': newStock},
+      where: 'id = ?',
+      whereArgs: [productId],
+    );
   }
 }

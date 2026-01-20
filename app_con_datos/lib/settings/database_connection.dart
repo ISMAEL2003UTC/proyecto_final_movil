@@ -85,7 +85,7 @@ class DatabaseConnection {
 
         // Tabla de compras
         await db.execute('''
-      CREATE TABLE purchases(
+      CREATE TABLE compras(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         productoId INTEGER NOT NULL,
         cantidad INTEGER NOT NULL,

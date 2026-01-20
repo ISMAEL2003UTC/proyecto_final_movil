@@ -12,24 +12,34 @@ class CategoryFormScreen extends StatefulWidget {
 
 class _CategoryFormScreenState extends State<CategoryFormScreen> {
   final formCategory = GlobalKey<FormState>();
-  final nombreController = TextEditingController();
-  final descripcionController = TextEditingController();
+  final TextEditingController nombreController = TextEditingController();
+  final TextEditingController descripcionController = TextEditingController();
+
   CategoryModels? categoria;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    //capturo
-    final args = ModalRoute.of(context)!.settings.arguments;
-    if (args != null) {
-      categoria = args as CategoryModels;
+
+    final route = ModalRoute.of(context);
+    if (route != null && route.settings.arguments != null) {
+      categoria = route.settings.arguments as CategoryModels;
       nombreController.text = categoria!.nombre;
       descripcionController.text = categoria!.descripcion;
     }
   }
 
   @override
+  void dispose() {
+    nombreController.dispose();
+    descripcionController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final esEditar = categoria != null;
+    final bool esEditar = categoria != null;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(esEditar ? "Editar Categoría" : "Agregar Categoría"),
@@ -53,14 +63,13 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                 decoration: InputDecoration(
                   labelText: 'Categoría',
                   hintText: 'Ingrese el nombre de la categoría',
-                  prefixIcon: Icon(Icons.category, color: Colors.black),
+                  prefixIcon: const Icon(Icons.category, color: Colors.black),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
               ),
-
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               TextFormField(
                 controller: descripcionController,
                 validator: (value) {
@@ -72,16 +81,15 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                 maxLines: 2,
                 decoration: InputDecoration(
                   labelText: 'Descripción',
-                  hintText: 'Ingrese el nombre de la descripción',
-                  prefixIcon: Icon(Icons.description, color: Colors.black),
+                  hintText: 'Ingrese la descripción',
+                  prefixIcon:
+                      const Icon(Icons.description, color: Colors.black),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
               ),
-
-              SizedBox(height: 10),
-
+              const SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
@@ -89,96 +97,104 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                       height: 70,
                       child: TextButton(
                         onPressed: () async {
-                          if (formCategory.currentState!.validate()) {
-                            //almacenar datos
-                            final repo = CategoryRepository();
-                            // Traigo todas las categorías
-                            final allCategories = await repo.getAll();
-                            // Verifico si el nombre ya existe
-                            bool nombreRepetido = allCategories.any(
-                                    (c) => c.nombre.toLowerCase() == nombreController.text.toLowerCase() && c.id != (categoria?.id ?? 0)
-                            );
-                            if (nombreRepetido) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('La categoría ya existe'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                              return;
-                            }
+                          if (!formCategory.currentState!.validate()) return;
 
+                          final repo = CategoryRepository();
+                          final allCategories = await repo.getAll();
 
-                            final category = CategoryModels(
-                              nombre: nombreController.text,
-                              descripcion: descripcionController.text,
-                            );
-                            if (categoria != null) {
-                              category.id = categoria!.id;
-                              await repo.edit(category);
-                            } else {
-                              await repo.create(category);
-                            }
+                          final bool nombreRepetido = allCategories.any(
+                            (c) =>
+                                c.nombre.toLowerCase() ==
+                                    nombreController.text.toLowerCase() &&
+                                c.id != (categoria?.id ?? 0),
+                          );
+
+                          if (nombreRepetido) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  esEditar ? 'Actualización exitosa' : 'Registro Exitoso',
-                                  textAlign: TextAlign.center,
-                                ),
-                                duration: Duration(milliseconds: 500),
-                                backgroundColor: Colors.green,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                              const SnackBar(
+                                content:
+                                    Text('La categoría ya existe'),
+                                backgroundColor: Colors.red,
                               ),
                             );
-
-                            await Future.delayed(Duration(milliseconds: 650));
-                            Navigator.pop(context);
+                            return;
                           }
-                        },
 
+                          final category = CategoryModels(
+                            nombre: nombreController.text,
+                            descripcion: descripcionController.text,
+                          );
+
+                          if (categoria != null) {
+                            category.id = categoria!.id;
+                            await repo.edit(category);
+                          } else {
+                            await repo.create(category);
+                          }
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                esEditar
+                                    ? 'Actualización exitosa'
+                                    : 'Registro exitoso',
+                                textAlign: TextAlign.center,
+                              ),
+                              duration:
+                                  const Duration(milliseconds: 500),
+                              backgroundColor: Colors.green,
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+
+                          await Future.delayed(
+                              const Duration(milliseconds: 650));
+                          Navigator.pop(context);
+                        },
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10),
+                            borderRadius:
+                                BorderRadius.circular(10),
                           ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: const Column(
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.save, color: Colors.white),
-                            SizedBox(width: 8),
+                            Icon(Icons.save),
+                            SizedBox(height: 5),
                             Text('Aceptar'),
                           ],
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 20),
-
+                  const SizedBox(width: 20),
                   Expanded(
                     child: SizedBox(
                       height: 70,
-
                       child: TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: () => Navigator.pop(context),
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10),
+                            borderRadius:
+                                BorderRadius.circular(10),
                           ),
                         ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        child: const Column(
+                          mainAxisAlignment:
+                              MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.cancel, color: Colors.white),
-                            SizedBox(width: 8),
+                            Icon(Icons.cancel),
+                            SizedBox(height: 5),
                             Text('Cancelar'),
                           ],
                         ),

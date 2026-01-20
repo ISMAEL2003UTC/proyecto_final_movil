@@ -361,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
              SizedBox(height: 10),
 
-            // FILA 3
+            // FILA 3 - VENTAS Y GASTOS
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -445,6 +445,62 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                ),
+              ],
+            ),
+
+             SizedBox(height: 10),
+
+            // FILA 4 - COMPRAS (NUEVA FILA)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Botón de Compras
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/compras');
+                  },
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  child: Container(
+                    width: 160,
+                    height: 110,
+                    decoration: BoxDecoration(
+                      color: Colors.teal, // Color diferente para distinguir
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.12),
+                          blurRadius: 6,
+                          offset:  Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:  [
+                        Icon(
+                          Icons.shopping_bag, // Icono diferente para compras
+                          color: Colors.white,
+                          size: 36,
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Compras',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Puedes agregar otro botón aquí o dejar un espacio vacío
+                Container(
+                  width: 160,
+                  height: 110,
+                  // Color transparente para mantener el diseño
                 ),
               ],
             ),
