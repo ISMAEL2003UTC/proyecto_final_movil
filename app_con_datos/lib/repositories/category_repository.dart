@@ -1,9 +1,11 @@
 import '../models/category_models.dart';
+import '../models/products_models.dart';
 import '../settings/database_connection.dart';
 
 class CategoryRepository {
   final tableName = "categories";
   final database = DatabaseConnection();
+
   // funcion para insertar datos
   Future<int> create(CategoryModels data) async {
     final db = await database.db; //1. llamar a la conexion
@@ -38,5 +40,14 @@ class CategoryRepository {
     return response.map((e) => CategoryModels.fromMap(e)).toList();
   }
 
-  //funcion para eliminar
+  //obtener productos por id de categoría
+  Future<List<ProductsModels>> getProductsByCategoryId(int categoryId) async {
+    final db = await database.db;
+    final response = await db.query(
+      'products',
+      where: 'categoriaId = ?',
+      whereArgs: [categoryId],
+    );
+    return response.map((e) => ProductsModels.fromMap(e)).toList();
+  }
 }

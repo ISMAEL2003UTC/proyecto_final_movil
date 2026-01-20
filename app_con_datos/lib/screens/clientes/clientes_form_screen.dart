@@ -4,7 +4,7 @@ import '../../models/clients_models.dart';
 import '../../repositories/clients_repository.dart';
 
 class ClienteFormScreen extends StatefulWidget {
-  const ClienteFormScreen({super.key});
+   ClienteFormScreen({super.key});
   @override
   State<ClienteFormScreen> createState() => _ClienteFormScreenState();
 }
@@ -16,7 +16,6 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
   final direccionController = TextEditingController();
   final telefonoController = TextEditingController();
   final correoController = TextEditingController();
-  final fechaController = TextEditingController();
   ClientsModels? cliente;
   @override
   void didChangeDependencies() {
@@ -30,7 +29,6 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
       direccionController.text = cliente!.direccion;
       telefonoController.text = cliente!.telefono;
       correoController.text = cliente!.correo;
-      fechaController.text = cliente!.fechaNacimiento;
     }
   }
 
@@ -45,16 +43,24 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
         foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding:  EdgeInsets.all(20),
         child: Form(
           key: formClients,
           child: Column(
             children: [
               TextFormField(
                 controller: cedulaController,
+                keyboardType: TextInputType.number,
+                maxLength: 10,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "La cédula es requerido";
+                    return "La cédula es requerida";
+                  }
+                  if (value.length != 10) {
+                    return "La cédula debe tener 10 dígitos";
+                  }
+                  if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                    return "La cédula solo debe contener números";
                   }
                   return null;
                 },
@@ -71,6 +77,8 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
 
               TextFormField(
                 controller: nombreController,
+                keyboardType: TextInputType.text,
+                maxLength: 50,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "El nombre es requerido";
@@ -90,6 +98,8 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
 
               TextFormField(
                 controller: direccionController,
+                keyboardType: TextInputType.text,
+                maxLength: 15,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "La dirección es requerido";
@@ -112,9 +122,17 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
               SizedBox(height: 15),
               TextFormField(
                 controller: telefonoController,
+                keyboardType: TextInputType.number,
+                maxLength: 10,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "El teléfono es requerido";
+                  }
+                  if (value.length != 10) {
+                    return "El teléfono debe tener 10 dígitos";
+                  }
+                  if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+                    return "El teléfono solo debe contener números";
                   }
                   return null;
                 },
@@ -130,9 +148,14 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
               SizedBox(height: 15),
               TextFormField(
                 controller: correoController,
+                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "El correo es requerido";
+                  }
+                  final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+                  if (!emailRegex.hasMatch(value)) {
+                    return "Ingrese un correo válido";
                   }
                   return null;
                 },
@@ -146,31 +169,6 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                 ),
               ),
               SizedBox(height: 15),
-
-              TextFormField(
-                controller: fechaController,
-
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "La fecha de nacimiento es requerido";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Fecha de nacimiento',
-                  hintText: 'Ingrese la fecha de nacimiento',
-                  prefixIcon: Icon(
-                    Icons.calendar_month_outlined,
-                    color: Colors.black,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 10),
-
               Row(
                 children: [
                   Expanded(
@@ -179,36 +177,72 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                       child: TextButton(
                         onPressed: () async {
                           if (formClients.currentState!.validate()) {
-                            //almacenar datos
                             final repo = ClientsRepository();
+                            // Traigo todos los clientes
+                            final allClients = await repo.getAll();
+                            // Verifico si la cedula ya existe
+                            bool cedulaRepetida = allClients.any(
+                                    (c) => c.cedula == cedulaController.text && c.id != (cliente?.id ?? 0)
+                            );
+
+                            if (cedulaRepetida) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('La cédula ya está registrada'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+                            // Verifico si el correo ya existe
+                            bool correoRepetido = allClients.any(
+                                    (c) => c.correo.toLowerCase() == correoController.text.toLowerCase() && c.id != (cliente?.id ?? 0)
+                            );
+
+                            if (correoRepetido) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('El correo ya está registrado'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+
                             final clients = ClientsModels(
                               cedula: cedulaController.text,
                               nombre: nombreController.text,
                               direccion: direccionController.text,
                               telefono: telefonoController.text,
                               correo: correoController.text,
-                              fechaNacimiento: fechaController.text,
                             );
-                            if (esEditar) {
+                            if (cliente != null) {
                               clients.id = cliente!.id;
                               await repo.edit(clients);
                             } else {
                               await repo.create(clients);
                             }
-                          }
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Registro exitoso'),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  esEditar ? 'Actualización exitosa' : 'Registro Exitoso',
+                                  textAlign: TextAlign.center,
+                                ),
+                                duration: Duration(milliseconds: 500),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                          Future.delayed(Duration(microseconds: 500), () {
+                            );
+
+                            await Future.delayed(Duration(milliseconds: 650));
                             Navigator.pop(context);
-                          });
+                          }
                         },
+
 
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.green,

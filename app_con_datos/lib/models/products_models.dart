@@ -5,6 +5,9 @@ class ProductsModels {
   String descripcion;
   double precio;
   double costo;
+  double stock;
+  int? categoriaId;
+
 
   ProductsModels({
     this.id,
@@ -13,6 +16,8 @@ class ProductsModels {
     required this.descripcion,
     required this.precio,
     required this.costo,
+    required this.stock,
+    this.categoriaId,
   });
 
   //convertir de map a clase
@@ -24,6 +29,8 @@ class ProductsModels {
       descripcion: data["descripcion"],
       precio: (data["precio"] as num).toDouble(),
       costo: (data["costo"] as num).toDouble(),
+      stock: (data["stock"] as num).toDouble(),
+      categoriaId: data["categoriaId"],
     );
   }
   //convertir de clase a map
@@ -31,11 +38,12 @@ class ProductsModels {
     return {
       'id': id,
       'codigo': codigo,
-
       'nombre': nombre,
       'descripcion': descripcion,
       'precio': precio,
       'costo': costo,
+      'stock': stock,
+      'categoriaId': categoriaId,
     };
   }
 }

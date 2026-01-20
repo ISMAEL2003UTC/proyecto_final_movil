@@ -12,7 +12,6 @@ class CategoryFormScreen extends StatefulWidget {
 
 class _CategoryFormScreenState extends State<CategoryFormScreen> {
   final formCategory = GlobalKey<FormState>();
-  final codigoController = TextEditingController();
   final nombreController = TextEditingController();
   final descripcionController = TextEditingController();
   CategoryModels? categoria;
@@ -23,7 +22,6 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
     final args = ModalRoute.of(context)!.settings.arguments;
     if (args != null) {
       categoria = args as CategoryModels;
-      codigoController.text = categoria!.codigo;
       nombreController.text = categoria!.nombre;
       descripcionController.text = categoria!.descripcion;
     }
@@ -44,25 +42,6 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
           key: formCategory,
           child: Column(
             children: [
-              TextFormField(
-                controller: codigoController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "El código es requerido";
-                  }
-                  return null;
-                },
-                decoration: InputDecoration(
-                  labelText: 'Código',
-                  hintText: 'Ingrese el código de la categoría',
-                  prefixIcon: Icon(Icons.barcode_reader, color: Colors.black),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 15),
               TextFormField(
                 controller: nombreController,
                 validator: (value) {
@@ -90,7 +69,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                   }
                   return null;
                 },
-                maxLines: 5,
+                maxLines: 2,
                 decoration: InputDecoration(
                   labelText: 'Descripción',
                   hintText: 'Ingrese el nombre de la descripción',
@@ -113,32 +92,51 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                           if (formCategory.currentState!.validate()) {
                             //almacenar datos
                             final repo = CategoryRepository();
+                            // Traigo todas las categorías
+                            final allCategories = await repo.getAll();
+                            // Verifico si el nombre ya existe
+                            bool nombreRepetido = allCategories.any(
+                                    (c) => c.nombre.toLowerCase() == nombreController.text.toLowerCase() && c.id != (categoria?.id ?? 0)
+                            );
+                            if (nombreRepetido) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('La categoría ya existe'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+
                             final category = CategoryModels(
-                              codigo: codigoController.text,
                               nombre: nombreController.text,
                               descripcion: descripcionController.text,
                             );
-                            if (esEditar) {
+                            if (categoria != null) {
                               category.id = categoria!.id;
                               await repo.edit(category);
                             } else {
                               await repo.create(category);
                             }
-                          }
-
-                          //await repo.create(category);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text('Registro exitoso'),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  esEditar ? 'Actualización exitosa' : 'Registro Exitoso',
+                                  textAlign: TextAlign.center,
+                                ),
+                                duration: Duration(milliseconds: 500),
+                                backgroundColor: Colors.green,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                          Future.delayed(Duration(microseconds: 500), () {
+                            );
+
+                            await Future.delayed(Duration(milliseconds: 650));
                             Navigator.pop(context);
-                          });
+                          }
                         },
 
                         style: TextButton.styleFrom(

@@ -1,4 +1,5 @@
 import '../models/clients_models.dart';
+import '../models/sales_models.dart';
 import '../settings/database_connection.dart';
 
 class ClientsRepository {
@@ -38,5 +39,14 @@ class ClientsRepository {
     return response.map((e) => ClientsModels.fromMap(e)).toList();
   }
 
-  //funcion para eliminar
+  //obtener ventas por cliente
+  Future<List<SaleModels>> getSalesByClientId(int clientId) async {
+    final db = await database.db;
+    final response = await db.query(
+      'sales',
+      where: 'clienteId = ?',
+      whereArgs: [clientId],
+    );
+    return response.map((e) => SaleModels.fromMap(e)).toList();
+  }
 }

@@ -1,4 +1,5 @@
 import '../models/products_models.dart';
+import '../models/sale_detail_models.dart';
 import '../settings/database_connection.dart';
 
 class ProductsRepository {
@@ -37,6 +38,14 @@ class ProductsRepository {
     final response = await db.query(tableName);
     return response.map((e) => ProductsModels.fromMap(e)).toList();
   }
-
-  //funcion para eliminar
+// NUEVO: obtener ventas relacionadas con un producto
+  Future<List<SaleDetailModels>> getSalesByProductId(int productId) async {
+    final db = await database.db;
+    final response = await db.query(
+      'sale_details',
+      where: 'productoId = ?',
+      whereArgs: [productId],
+    );
+    return response.map((e) => SaleDetailModels.fromMap(e)).toList();
+  }
 }

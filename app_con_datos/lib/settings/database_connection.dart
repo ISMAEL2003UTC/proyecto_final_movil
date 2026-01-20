@@ -28,7 +28,6 @@ class DatabaseConnection {
         await db.execute('''
         CREATE TABLE categories(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          codigo TEXT NOT NULL,
           nombre TEXT NOT NULL,
           descripcion TEXT
         );
@@ -43,6 +42,7 @@ class DatabaseConnection {
           descripcion TEXT,
           precio REAL NOT NULL,
           costo REAL NOT NULL,
+          stock REAL NOT NULL,
           categoriaId INTEGER,
           FOREIGN KEY (categoriaId) REFERENCES categories(id)
         );
@@ -71,7 +71,7 @@ class DatabaseConnection {
           correop TEXT NOT NULL
         );
         ''');
-// tabla gasttos --------------------------------------
+        // Tabla de gastos
         await db.execute('''
         CREATE TABLE gastos(
           id INTEGER PRIMARY KEY AUTOINCREMENT,

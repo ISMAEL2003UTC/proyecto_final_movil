@@ -5,7 +5,6 @@ class ClientsModels {
   String direccion;
   String telefono;
   String correo;
-  String fechaNacimiento;
   ClientsModels({
     this.id,
     required this.cedula,
@@ -13,7 +12,6 @@ class ClientsModels {
     required this.direccion,
     required this.telefono,
     required this.correo,
-    required this.fechaNacimiento,
   });
 
   //convertir de map a clase
@@ -25,7 +23,6 @@ class ClientsModels {
       direccion: data["direccion"],
       telefono: data["telefono"],
       correo: data["correo"],
-      fechaNacimiento: data["fechaNacimiento"],
     );
   }
   //convertir de clase a map
@@ -37,7 +34,6 @@ class ClientsModels {
       'direccion': direccion,
       'telefono': telefono,
       'correo': correo,
-      'fechaNacimiento': fechaNacimiento,
     };
   }
 }
