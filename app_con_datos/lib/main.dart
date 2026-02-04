@@ -1,6 +1,4 @@
 import 'package:app_con_datos/screens/gastos/lista_gastos.dart';
-import 'package:app_con_datos/screens/sales/sales_form_screen.dart';
-import 'package:app_con_datos/screens/sales/sales_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/category/categoria_screen.dart';
 import 'screens/category/categoria_form_screen.dart';
@@ -36,8 +34,6 @@ class MyApp extends StatelessWidget {
         '/provider': (context) => ProviderScreen(),
         '/provider/form': (context) => ProvidersFormScreen(),
         '/cliente': (context) => ClienteScreen(),
-        '/ventas': (context) => SalesScreen(),
-        '/ventas/form': (context) => VentasFormScreen(),
         '/lista_gastos': (context) => GastoScreen(),
         '/gastos/form': (context) => GastoFormScreen(),
         //compras
