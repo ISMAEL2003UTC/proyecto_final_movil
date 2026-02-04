@@ -55,12 +55,14 @@ class _CompraScreenState extends State<CompraScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Listado de Compras"),
-        backgroundColor: Colors.blue[800],
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: cargando
           ? const Center(child: CircularProgressIndicator())
           : compras.isEmpty
               ? const Center(child: Text("No existen datos"))
+              //comenzamos con la creacion de la tarjeta de datos
               : ListView.builder(
                   itemCount: compras.length,
                   itemBuilder: (context, i) {
@@ -68,9 +70,11 @@ class _CompraScreenState extends State<CompraScreen> {
                     
                     return Card(
                       child: ListTile(
+                        //y leading utilizamos para mostrar un qidguet al lado izquierdo en mi caso el icono del carrito
                         leading: Icon(Icons.shopping_cart, color: Colors.blue[800]),
-                        title: Text("Compra #${compra.id}"),
+                        title: Text("Compra #${compra.id}"), // aqui hacemos dinamica a la compra y agregamos el id para que siempre capture y vaya en orden
                         subtitle: Text("Total: S/. ${compra.montoTotal.toStringAsFixed(2)}"),
+                        //utilizamos este trailing para posicionar un widguet al lado derecho en este caso los botones de accion
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [

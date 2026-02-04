@@ -34,7 +34,7 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
       correopController.text = proveedor!.correop;
     }
   }
-
+//funciones para la edicion
   @override
   Widget build(BuildContext context) {
     final esEditar = proveedor != null;
@@ -58,7 +58,7 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(10),
                 ],
-                validator: (value) {
+                validator: (value) {  //validaciones para cedula
                   if (value == null || value.isEmpty) {
                     return "EL CAMPO ES REQUERIDO";
                   }
@@ -164,7 +164,7 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "EL CAMPO ES REQUERIDO";
-                  }
+                  } // se evalua aqui en el correo que deba tener el arroba
                   if (!value.contains('@') || !value.contains('.')) {
                     return "Ingrese un correo electrónico válido";
                   }
@@ -229,6 +229,7 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
                             if (correoDuplicado) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
+                                  //aqui lanzan mensajes de error
                                   const SnackBar(
                                     content: Text("Ya existe un proveedor con este correo"),
                                     backgroundColor: Colors.red,

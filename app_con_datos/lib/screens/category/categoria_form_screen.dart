@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../repositories/category_repository.dart';
 
-class CategoryFormScreen extends StatefulWidget {
+class CategoryFormScreen extends StatefulWidget {             
   const CategoryFormScreen({super.key});
 
   @override
@@ -11,7 +11,7 @@ class CategoryFormScreen extends StatefulWidget {
 }
 
 class _CategoryFormScreenState extends State<CategoryFormScreen> {
-  final formCategory = GlobalKey<FormState>();
+  final formCategory = GlobalKey<FormState>();  // valida el formulario
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
 
@@ -28,7 +28,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
       descripcionController.text = categoria!.descripcion;
     }
   }
-
+// funcion para liberar memoria 
   @override
   void dispose() {
     nombreController.dispose();
@@ -108,7 +108,7 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                                     nombreController.text.toLowerCase() &&
                                 c.id != (categoria?.id ?? 0),
                           );
-
+                        // funcionalidad para identificar si la categoria ya existe
                           if (nombreRepetido) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
