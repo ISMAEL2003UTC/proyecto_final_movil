@@ -57,9 +57,14 @@ class _GastoFormScreenState extends State<GastoFormScreen> {
               TextFormField(
                 controller: nombreController,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return "El nombre es requerido";
                   }
+
+                  if (RegExp(r'[0-9]').hasMatch(value)) {
+                    return "El nombre no debe tener números";
+                  }
+
                   return null;
                 },
                 decoration: InputDecoration(
@@ -81,6 +86,9 @@ class _GastoFormScreenState extends State<GastoFormScreen> {
                   if (value == null || value.isEmpty) {
                     return "La descripción es requerida";
                   }
+                  if (RegExp(r'[0-9]').hasMatch(value)) {
+                    return "La descripción no debe contener números";
+                  }
                   return null;
                 },
                 maxLines: 4,
@@ -101,11 +109,21 @@ class _GastoFormScreenState extends State<GastoFormScreen> {
                 controller: montoController,
                 keyboardType: TextInputType.number,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.trim().isEmpty) {
                     return "El monto es requerido";
                   }
+
+                  final monto = double.tryParse(value);
+                  if (monto == null) {
+                    return "Ingrese un valor numérico válido";
+                  }
+
+                  if (monto <= 0) {
+                    return "El monto debe ser mayor a 0";
+                  }
+
                   return null;
-                },
+                },  
                 decoration: InputDecoration(
                   labelText: 'Monto',
                   hintText: 'Ingrese el monto',
