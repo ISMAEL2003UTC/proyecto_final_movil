@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../models/products_models.dart';
 import '../../models/category_models.dart';
+import '../../models/providers_model.dart';
 import '../../repositories/products_repository.dart';
 import '../../repositories/category_repository.dart';
+import '../../repositories/providers_repository.dart';
 
 class ProductoFormScreen extends StatefulWidget {
-   ProductoFormScreen({super.key});
+  ProductoFormScreen({super.key});
 
   @override
   State<ProductoFormScreen> createState() => _ProductoFormScreenState();
@@ -23,18 +25,20 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
 
   ProductsModels? producto;
 
-  // --- Variables para la categoría ---
   final categoryRepo = CategoryRepository();
-  List<CategoryModels> categorias = []; //aqui utilizamos esta parte para que se carguen todas las categorias
-  int? selectedCategoriaId; //esto nos permite en el drop down seleccionar la categoria
+  List<CategoryModels> categorias =
+      []; //aqui utilizamos esta parte para que se carguen todas las categorias
+  int? selectedCategoriaId;
+  final providerRepo = ProvidersRepository();
+  List<ProvidersModel> proveedores = [];
+  int? selectedProveedorId;
 
   @override
   void initState() {
     super.initState();
     cargarCategorias();
+    cargarProveedores();
   }
-
-
 
   @override
   void didChangeDependencies() {
@@ -50,6 +54,8 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
       precioController.text = producto!.precio.toString();
       costoController.text = producto!.costo.toString();
       stockController.text = producto!.stock.toString();
+      selectedCategoriaId = producto!.categoriaId;
+      selectedProveedorId = producto!.proveedorId;
     }
   }
 
@@ -58,6 +64,16 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
     // Si estamos editando, seleccionamos la categoría actual del producto
     if (producto != null) {
       selectedCategoriaId = producto!.categoriaId;
+    }
+
+    setState(() {});
+  }
+
+  void cargarProveedores() async {
+    proveedores = await providerRepo.getAll();
+
+    if (producto != null) {
+      selectedProveedorId = producto!.proveedorId;
     }
 
     setState(() {});
@@ -74,7 +90,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
         foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding:  EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Form(
           key: formProducts,
           child: SingleChildScrollView(
@@ -84,13 +100,16 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                 TextFormField(
                   controller: codigoController,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "El código es requerido";
+                    if (value == null || value.isEmpty)
+                      return "El código es requerido";
                     return null;
                   },
                   decoration: InputDecoration(
                     labelText: 'Código',
                     prefixIcon: Icon(Icons.barcode_reader, color: Colors.black),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
                 SizedBox(height: 15),
@@ -99,13 +118,16 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                 TextFormField(
                   controller: nombreController,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "El nombre es requerido";
+                    if (value == null || value.isEmpty)
+                      return "El nombre es requerido";
                     return null;
                   },
                   decoration: InputDecoration(
                     labelText: 'Nombre',
                     prefixIcon: Icon(Icons.inventory_2, color: Colors.black),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
                 SizedBox(height: 15),
@@ -114,14 +136,17 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                 TextFormField(
                   controller: descripcionController,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "La descripción es requerida";
+                    if (value == null || value.isEmpty)
+                      return "La descripción es requerida";
                     return null;
                   },
                   maxLines: 2,
                   decoration: InputDecoration(
                     labelText: 'Descripción',
                     prefixIcon: Icon(Icons.text_snippet, color: Colors.black),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
                 SizedBox(height: 15),
@@ -131,7 +156,8 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                   controller: precioController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "El precio es requerido";
+                    if (value == null || value.isEmpty)
+                      return "El precio es requerido";
 
                     final double? precio = double.tryParse(value);
                     if (precio == null) return "Ingrese un número válido";
@@ -146,7 +172,9 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                   decoration: InputDecoration(
                     labelText: 'Precio Venta',
                     prefixIcon: Icon(Icons.attach_money, color: Colors.black),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
                 SizedBox(height: 15),
@@ -156,12 +184,15 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                   controller: costoController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "El costo es requerido";
+                    if (value == null || value.isEmpty)
+                      return "El costo es requerido";
 
                     final double? costo = double.tryParse(value);
                     if (costo == null) return "Ingrese un número válido";
 
-                    final double? precio = double.tryParse(precioController.text);
+                    final double? precio = double.tryParse(
+                      precioController.text,
+                    );
                     if (precio != null && precio <= costo) {
                       return "El precio de costo debe ser menor al de venta";
                     }
@@ -171,7 +202,9 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                   decoration: InputDecoration(
                     labelText: 'Costo',
                     prefixIcon: Icon(Icons.money_off, color: Colors.black),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
                 SizedBox(height: 15),
@@ -180,19 +213,22 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                 TextFormField(
                   controller: stockController,
                   validator: (value) {
-                    if (value == null || value.isEmpty) return "El stock es requerido";
+                    if (value == null || value.isEmpty)
+                      return "El stock es requerido";
                     return null;
                   },
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: 'Stock',
                     prefixIcon: Icon(Icons.storage, color: Colors.black),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                 ),
                 SizedBox(height: 15),
 
-                // Categoría este es el dropdown que muestra todos los productos
+                // Categoría este es el dropdown que muestra todos las categorias
                 DropdownButtonFormField<int>(
                   value: selectedCategoriaId,
                   items: categorias.map((cat) {
@@ -209,14 +245,43 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                   decoration: InputDecoration(
                     labelText: 'Categoría',
                     prefixIcon: Icon(Icons.category, color: Colors.black),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                   validator: (value) {
                     if (value == null) return 'Seleccione una categoría';
                     return null;
                   },
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 15),
+
+                DropdownButtonFormField<int>(
+                  value: selectedProveedorId,
+                  items: proveedores.map((prov) {
+                    return DropdownMenuItem<int>(
+                      value: prov.id,
+                      child: Text(prov.nombrep),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedProveedorId = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Proveedor',
+                    prefixIcon: Icon(Icons.local_shipping, color: Colors.black),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null) return 'Seleccione un proveedor';
+                    return null;
+                  },
+                ),
+                SizedBox(height: 15),
 
                 // Botones
                 Row(
@@ -231,12 +296,17 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                               final allProducts = await repo.getAll();
 
                               bool codigoRepetido = allProducts.any(
-                                      (p) => p.codigo.toLowerCase() == codigoController.text.toLowerCase() && p.id != (producto?.id ?? 0)
+                                (p) =>
+                                    p.codigo.toLowerCase() ==
+                                        codigoController.text.toLowerCase() &&
+                                    p.id != (producto?.id ?? 0),
                               );
                               if (codigoRepetido) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('El código ya está registrado'),
+                                    content: Text(
+                                      'El código ya está registrado',
+                                    ),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -244,16 +314,21 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                               }
                               // Validar nombre único
                               bool nombreRepetido = allProducts.any(
-                                      (p) => p.nombre.toLowerCase() == nombreController.text.toLowerCase() && p.id != (producto?.id ?? 0)
+                                (p) =>
+                                    p.nombre.toLowerCase() ==
+                                        nombreController.text.toLowerCase() &&
+                                    p.id != (producto?.id ?? 0),
                               );
                               if (nombreRepetido) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('El nombre del producto ya está registrado'),
+                                    content: Text(
+                                      'El nombre del producto ya está registrado',
+                                    ),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
-                                return; // Detener guardado
+                                return;
                               }
 
                               final products = ProductsModels(
@@ -264,6 +339,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                                 costo: double.parse(costoController.text),
                                 stock: double.parse(stockController.text),
                                 categoriaId: selectedCategoriaId,
+                                proveedorId: selectedProveedorId,
                               );
 
                               if (producto != null) {
@@ -276,7 +352,9 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    esEditar ? 'Actualización exitosa' : 'Registro Exitoso',
+                                    esEditar
+                                        ? 'Actualización exitosa'
+                                        : 'Registro Exitoso',
                                     textAlign: TextAlign.center,
                                   ),
                                   duration: Duration(milliseconds: 500),
@@ -295,7 +373,9 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -319,7 +399,9 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

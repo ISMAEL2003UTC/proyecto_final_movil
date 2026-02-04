@@ -3,12 +3,8 @@ class CategoryModels {
   String nombre;
   String descripcion;
   //constructor de la clase
-  CategoryModels({
-    this.id,
-    required this.nombre,
-    required this.descripcion,
-  });
-  //convertir de map a clase
+  CategoryModels({this.id, required this.nombre, required this.descripcion});
+  //convertir de map a objeto
   factory CategoryModels.fromMap(Map<String, dynamic> data) {
     return CategoryModels(
       id: data["id"],
@@ -16,12 +12,8 @@ class CategoryModels {
       descripcion: data["descripcion"],
     );
   }
-  //convertir de clase a map
+  //convertir de objeto a map
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'nombre': nombre,
-      'descripcion': descripcion,
-    };
+    return {'id': id, 'nombre': nombre, 'descripcion': descripcion};
   }
 }
