@@ -59,7 +59,9 @@ class _ProviderScreenState extends State<ProviderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Proveedores")),
+      appBar: AppBar(title: Text("Listado de Proveedores"),
+      backgroundColor: Colors.blueAccent,
+      foregroundColor: Colors.white,),
       body: cargando ? Center(child: CircularProgressIndicator(),):
         providers.isEmpty ? Center(child: Text("No existen datos"),):
         ListView.builder(
