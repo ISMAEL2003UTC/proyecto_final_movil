@@ -48,8 +48,9 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
           key: formClients,
           child: Column(
             children: [
+              //son los numeritos de validacion de los campos que controla
               TextFormField(
-                controller: cedulaController,
+                controller: cedulaController, //validador de cedula
                 keyboardType: TextInputType.number,
                 maxLength: 10,
                 validator: (value) {
@@ -99,7 +100,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
               TextFormField(
                 controller: direccionController,
                 keyboardType: TextInputType.text,
-                maxLength: 15,
+                maxLength: 15, // delimitador numerito pequenio que sale por interfaz
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "La dirección es requerido";
@@ -153,6 +154,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                   if (value == null || value.isEmpty) {
                     return "El correo es requerido";
                   }
+                  //validador para correo electronico
                   final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
                   if (!emailRegex.hasMatch(value)) {
                     return "Ingrese un correo válido";
@@ -180,13 +182,14 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                             final repo = ClientsRepository();
                             // Traigo todos los clientes
                             final allClients = await repo.getAll();
-                            // Verifico si la cedula ya existe
+                            // Verifico si la cedula ya existe y si no emito mensaje 
                             bool cedulaRepetida = allClients.any(
                                     (c) => c.cedula == cedulaController.text && c.id != (cliente?.id ?? 0)
                             );
 
                             if (cedulaRepetida) {
                               ScaffoldMessenger.of(context).showSnackBar(
+                                //funcion para mensajes
                                 SnackBar(
                                   content: Text('La cédula ya está registrada'),
                                   backgroundColor: Colors.red,
@@ -194,13 +197,14 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                               );
                               return;
                             }
-                            // Verifico si el correo ya existe
+                            // Verifico si el correo ya existe y si se comprueba que ya existe vota el mensaje
                             bool correoRepetido = allClients.any(
                                     (c) => c.correo.toLowerCase() == correoController.text.toLowerCase() && c.id != (cliente?.id ?? 0)
                             );
 
                             if (correoRepetido) {
                               ScaffoldMessenger.of(context).showSnackBar(
+                                // funcion para mensajes
                                 SnackBar(
                                   content: Text('El correo ya está registrado'),
                                   backgroundColor: Colors.red,
@@ -223,6 +227,7 @@ class _ClienteFormScreenState extends State<ClienteFormScreen> {
                             } else {
                               await repo.create(clients);
                             }
+                            //mensajes de exito
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(

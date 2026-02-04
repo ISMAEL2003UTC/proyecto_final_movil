@@ -64,15 +64,16 @@ class _ProviderScreenState extends State<ProviderScreen> {
       foregroundColor: Colors.white,),
       body: cargando ? Center(child: CircularProgressIndicator(),):
         providers.isEmpty ? Center(child: Text("No existen datos"),):
+        //aqui empezamos a armar la tarjeta donde se mostraran los datos
         ListView.builder(
           itemCount: providers.length,
           itemBuilder: (context,i){
             final cat = providers[i];
             return Card(
             child: ListTile(
-              title: Text("${cat.id} "),   // ID y nombre juntos
-              
-              subtitle: Column(
+              title: Text("${cat.id} "), //como titulo se muestra el id
+              //aqui en el subtitulo como en los anteriores se arma el subtitulo se arma un children para que se liste en el mismo subtitulo todos los registros
+              subtitle: Column(  
                 
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

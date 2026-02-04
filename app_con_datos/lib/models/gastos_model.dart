@@ -20,7 +20,7 @@ class GastosModel {
       id: data["id"],
       nombre: data["nombre"],
       descripcion: data["descripcion"],
-      monto: (data["monto"] as num).toDouble(),
+      monto: (data["monto"] as num).toDouble(), // de igual manera convierte numeros a double
       fecha: data["fecha"],
       tipo: data["tipo"],
     );

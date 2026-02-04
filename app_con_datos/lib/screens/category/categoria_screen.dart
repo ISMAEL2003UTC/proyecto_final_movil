@@ -26,13 +26,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
     categorias = await repo.getAll();
     setState(() => cargando = false);
   }
-
+// funcion que verifica si existen productos asociados para alertar
   void eliminarCategoria(int id) async {
     // Verifico si hay productos asociados
     final productosRelacionados = await repo.getProductsByCategoryId(id);
-
+// en el caso de cumplirse la condicion se va a lanzar un mensaje
     if (productosRelacionados.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
+        // snack bara es un elemento tipo mensaje peque;no que usamos para emitir el mensaje al usuario
         SnackBar(
           content: const Text(
             'No se puede eliminar la categoría. Existen productos relacionados.',
@@ -48,6 +49,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
       );
       return;
     }
+    //componente para mostrar un modal emergente showdialog
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -62,6 +64,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               Navigator.pop(context);
               await cargarCategoria();
               ScaffoldMessenger.of(context).showSnackBar(
+                //mensaje de satisfaccion
                 SnackBar(
                   content: const Text(
                     'Categoría eliminada',
@@ -101,6 +104,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
           ? const Center(child: Text('No existen categorías'))
           : Column(
               children: [
+                //contenedor de encabezado tipo tabla
                 Container(
                   width: double.infinity,
                   color: Colors.blueAccent,
@@ -140,6 +144,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
+                  //aqui se empieza a armar la tarjeta que mostrara los registros
                   child: ListView.builder(
                     itemCount: categorias.length,
                     itemBuilder: (context, i) {

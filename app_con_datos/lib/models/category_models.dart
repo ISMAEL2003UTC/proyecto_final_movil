@@ -2,7 +2,7 @@ class CategoryModels {
   int? id;
   String nombre;
   String descripcion;
-
+  //constructor de la clase
   CategoryModels({
     this.id,
     required this.nombre,

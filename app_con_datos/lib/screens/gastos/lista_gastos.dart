@@ -71,12 +71,14 @@ class _GastoScreenState extends State<GastoScreen> {
               ? Center(child: Text('No existen gastos'))
               : Padding(
                   padding: const EdgeInsets.all(8.0),
+                  //aqui realizamos las cards donde se mostraran los registros
                   child: ListView.builder(
                     itemCount: gastos.length,
                     itemBuilder: (context, i) {
                       final gasto = gastos[i];
                       return Card(
                         child: ListTile(
+                          //titulo de la card
                           title: Row(
                             children: [
                               Icon(Icons.attach_money),
@@ -87,7 +89,7 @@ class _GastoScreenState extends State<GastoScreen> {
                               ),
                             ],
                           ),
-
+                         //dentro del subtitulo se hace un children para que se muestre para abajo los registros
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

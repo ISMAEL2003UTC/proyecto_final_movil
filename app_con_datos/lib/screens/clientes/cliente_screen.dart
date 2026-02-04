@@ -33,7 +33,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
   void eliminarCliente(int id) async {
     // Verifico si el cliente tiene ventas
     final ventasRelacionadas = await repo.getSalesByClientId(id);
-
+// si el cliente tiene ventas pero estos modulos no estan en uso por el momento
     if (ventasRelacionadas.isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -51,7 +51,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
       );
       return;
     }
-
+// contenedor de mensajes de alertas
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -63,7 +63,7 @@ class _ClienteScreenState extends State<ClienteScreen> {
               await repo.delete(id);
               Navigator.pop(context);
               await cargarClientes();
-              // SnackBar de éxito
+              // SnackBar de éxito o mensaje de exito al crear uno nuevo
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: const Text(
@@ -105,12 +105,14 @@ class _ClienteScreenState extends State<ClienteScreen> {
           ? Center(child: Text('No existen clientes'))
           : Padding(
               padding:  EdgeInsets.all(8.0),
+              // tarjeta de imprecion de datos en la pantalla
               child: ListView.builder(
-                itemCount: clientes.length,
+                itemCount: clientes.length, 
                 itemBuilder: (context, i) {
                   final cli = clientes[i];
                   return Card(
                     child: ListTile(
+                      //titulo de la tarjeta
                       title: Row(
                         children: [
                           Icon(Icons.person, size: 16,fontWeight: FontWeight.bold),
@@ -118,7 +120,8 @@ class _ClienteScreenState extends State<ClienteScreen> {
                           Text("${cli.nombre}"),
                         ],
                       ),
-
+                      //primer subtitulo de la tarjeta
+                      // procedo a utilizar varios rows para extender mi subtitulo y que ocupe visualizar los demas registros
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

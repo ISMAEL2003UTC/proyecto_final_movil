@@ -21,7 +21,7 @@ class _GastoFormScreenState extends State<GastoFormScreen> {
   final tipoController = TextEditingController();
 
   GastosModel? gasto;
-
+//edicion de Datos
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -167,7 +167,7 @@ class _GastoFormScreenState extends State<GastoFormScreen> {
                     child: SizedBox(
                       height: 70,
                       child: TextButton(
-                        onPressed: () async {
+                        onPressed: () async { //se preciona en guardar y valida todos los datos
                           if (formGastos.currentState!.validate()) {
                             final repo = GastosRepository();
 
@@ -187,6 +187,7 @@ class _GastoFormScreenState extends State<GastoFormScreen> {
                             }
 
                             ScaffoldMessenger.of(context).showSnackBar(
+                             //mensaje de exito al guardar
                               SnackBar(
                                 content: Padding(
                                   padding: const EdgeInsets.all(8.0),

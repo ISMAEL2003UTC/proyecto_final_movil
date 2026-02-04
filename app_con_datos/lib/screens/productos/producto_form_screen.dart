@@ -25,8 +25,8 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
 
   // --- Variables para la categoría ---
   final categoryRepo = CategoryRepository();
-  List<CategoryModels> categorias = [];
-  int? selectedCategoriaId;
+  List<CategoryModels> categorias = []; //aqui utilizamos esta parte para que se carguen todas las categorias
+  int? selectedCategoriaId; //esto nos permite en el drop down seleccionar la categoria
 
   @override
   void initState() {
@@ -192,7 +192,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                 ),
                 SizedBox(height: 15),
 
-                // Categoría
+                // Categoría este es el dropdown que muestra todos los productos
                 DropdownButtonFormField<int>(
                   value: selectedCategoriaId,
                   items: categorias.map((cat) {

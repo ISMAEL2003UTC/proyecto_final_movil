@@ -51,7 +51,7 @@ class ProductsRepository {
     return response.map((e) => SaleDetailModels.fromMap(e)).toList();
   }
 
-  // MÉTODO PARA ACTUALIZAR STOCK - SOLO AGREGADO
+  // MÉTODO PARA ACTUALIZAR STOCK(aqui se actualiza el stock luego de una compra)
   Future<int> updateStock(int productId, double newStock) async {
     final db = await database.db;
     return await db.update(

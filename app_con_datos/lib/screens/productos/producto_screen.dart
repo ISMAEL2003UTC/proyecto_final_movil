@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/category_models.dart';
 import '../../models/products_models.dart';
+//se importan categorias por que nos serviara mas adalente para no nos de error ya que tienen una relacion
 import '../../repositories/category_repository.dart';
 import '../../repositories/products_repository.dart';
 
@@ -20,24 +21,25 @@ class _ProductoScreenState extends State<ProductoScreen> {
   List<CategoryModels> categorias = [];
   bool cargando = true;
 
+//funcion que me permite cargar productos y categorias
   @override
   void initState() {
     super.initState();
     cargarProducto();
     cargarCategorias();
   }
-
+//carga las categorias de la BD
   Future<void> cargarCategorias() async {
     categorias = await categoryRepo.getAll();
     setState(() {});
   }
-
+//carga productos de bd
   Future<void> cargarProducto() async {
     setState(() => cargando = true);
     productos = await repo.getAll();
     setState(() => cargando = false);
   }
-
+// esta funcion me permite obtener el nombre de la categoria 
   String obtenerNombreCategoria(int? id) {
     if (id == null) return 'Sin categoría';
     final cat = categorias.firstWhere(
@@ -85,7 +87,9 @@ class _ProductoScreenState extends State<ProductoScreen> {
               Navigator.pop(context);
               await cargarProducto();
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+
+                // mensaje de eliminado con exito
+               SnackBar(
                   content: const Text(
                     'Producto eliminado',
                     textAlign: TextAlign.center,
@@ -125,8 +129,10 @@ class _ProductoScreenState extends State<ProductoScreen> {
           ? const Center(child: Text('No existen productos'))
           : Padding(
         padding: const EdgeInsets.all(0),
+        //abajito del contenido principal del appbar hacemos una cabecera tipo tabla
         child: Column(
           children: [
+            //contenedor principal de encabezado tipo tabla
             Container(
               width: double.infinity,
               color: Colors.blueAccent, // Color azul
@@ -135,7 +141,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
                   Text(
-                    'PRODUCTO',
+                    'PRODUCTO', //producto
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -143,7 +149,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
                     ),
                   ),
                   Text(
-                    'STOCK',
+                    'STOCK', //stock
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -151,7 +157,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
                     ),
                   ),
                   Text(
-                    'TOTAL',
+                    'TOTAL', //total
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -171,6 +177,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
             ),
             const SizedBox(height: 8),
             Expanded(
+              //creacion de la card que contendra todos los datos a mosntrarse de un registro
               child: ListView.builder(
                 itemCount: productos.length,
                 itemBuilder: (context, i) {
@@ -192,6 +199,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
                               ),
                             ),
                           ),
+                          //producto en stock
                           Expanded(
                             flex: 1,
                             child: Text(
@@ -199,6 +207,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
                               textAlign: TextAlign.center,
                             ),
                           ),
+                          //stock
                           Expanded(
                             flex: 1,
                             child: Text(
@@ -206,6 +215,7 @@ class _ProductoScreenState extends State<ProductoScreen> {
                               textAlign: TextAlign.center,
                             ),
                           ),
+                          //total
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -233,6 +243,8 @@ class _ProductoScreenState extends State<ProductoScreen> {
                 },
               ),
             ),
+
+            //en este contenido guardamos la suma de el total del todo el inventario
             Container(
               width: double.infinity,
               color: Colors.blueAccent,
@@ -248,8 +260,8 @@ class _ProductoScreenState extends State<ProductoScreen> {
                     ),
                   ),
                   Text(
-                    productos.fold(0.0, (sum, prod) => sum + (prod.costo * prod.stock))
-                        .toStringAsFixed(2),
+                    productos.fold(0.0, (sum, prod) => sum + (prod.costo * prod.stock)) // este operador fold va recorriendo todos los productos y va acumulando su total
+                        .toStringAsFixed(2), //muestra el resultado con dos decimales
                     style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

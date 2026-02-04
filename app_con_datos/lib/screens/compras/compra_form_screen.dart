@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/compra_models.dart';
 import '../../models/products_models.dart';
 import '../../repositories/compra_repository.dart';
+//importamos el repository del producto relacionado para que pueda ser servido y no de errores
 import '../../repositories/products_repository.dart';
 
 class CompraFormScreen extends StatefulWidget {
@@ -19,11 +20,12 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
   final montoTotalController = TextEditingController();
 
   CompraModels? compra;
-  ProductsModels? productoSeleccionado;
-  List<ProductsModels> productos = [];
+  ProductsModels? productoSeleccionado; //se utiliza para que el usuario seleccione en el dropdown
+  List<ProductsModels> productos = []; // esta es la lista que alimenta al drop down
   bool cargandoProductos = true;
-  bool _compraCargada = false;
+  bool _compraCargada = false; //evita cargar datos dos veces
 
+//cuando se abre la pantalla este componente pone fecha actual y carga los productos
   @override
   void initState() {
     super.initState();
@@ -59,12 +61,14 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
     }
   }
 
+//este tramo optiene la fecha actual
   String _getFechaActual() {
     final now = DateTime.now();
     return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
   }
 
-  Future<void> cargarProductos() async {
+//esta es la funcion que consulta los productos y los carga (productos es relacionado)
+  Future< void> cargarProductos() async {
     try {
       if (mounted) setState(() => cargandoProductos = true);
       
@@ -89,7 +93,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
       }
     }
   }
-
+// esto hace que al editar el drop down muestre el producto correcto
   void _seleccionarProductoPorId(int productoId) {
     try {
       ProductsModels? productoEncontrado;
@@ -112,11 +116,12 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
           calcularMontoTotal();
         }
       }
+      //esto nos sirve para capturar errores al cargar los productos
     } catch (e) {
       print("Error en _seleccionarProductoPorId: $e");
     }
   }
-
+// esta funcion me permite calcular el monto total al seleccionar un producto
   void calcularMontoTotal() {
     try {
       if (cantidadController.text.isNotEmpty && precioCostoController.text.isNotEmpty) {
@@ -129,7 +134,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
       print("Error en calcularMontoTotal: $e");
     }
   }
-
+// aqui es donde se actualiza el stock pero una ves una ves creado la compra
   Future<bool> _actualizarStockProducto() async {
     try {
       if (productoSeleccionado != null && compra == null) {
@@ -141,7 +146,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
         }
         
         final nuevoStock = productoSeleccionado!.stock + cantidadComprada;
-        
+        // aqui es donde interactua con la base de datos y modifca el stock del producti
         final resultado = await productoRepo.updateStock(
           productoSeleccionado!.id!,
           nuevoStock,
@@ -150,6 +155,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
         return resultado > 0;
       }
       return true;
+      //analizador de errores y los evita
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -213,6 +219,8 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
               if (cargandoProductos)
                 const CircularProgressIndicator()
               else if (productos.isEmpty)
+
+              //esta card muestra cuando no existe datos de productos
                 Card(
                   color: Colors.orange[50],
                   child: Padding(
@@ -261,7 +269,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
                     }
 
                     final productos = snapshot.data as List<ProductsModels>;
-
+                   //dropdown que se muestra los productos
                     return DropdownButtonFormField<ProductsModels>(
                       value: productoSeleccionado,
                       validator: (value) {
@@ -304,7 +312,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'La cantidad es requerida';
-                  }
+                  }//valida que la cantidad no sea 0
                   if (int.tryParse(value) == null || int.parse(value) <= 0) {
                     return 'Cantidad inválida';
                   }
@@ -329,7 +337,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'El precio es requerido';
-                  }
+                  }//valida que el precio no sea 0
                   if (double.tryParse(value) == null || double.parse(value) <= 0) {
                     return 'Precio inválido';
                   }
@@ -347,7 +355,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
               ),
               const SizedBox(height: 15),
 
-              // Campo de Monto Total (solo lectura)
+              // Campo de Monto Total (solo lectura) aqui se va sumando la cantodad que se va sumando
               TextFormField(
                 controller: montoTotalController,
                 readOnly: true,
@@ -371,6 +379,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
                         if (formCompra.currentState!.validate() && productoSeleccionado != null) {
                           try {
                             final repo = CompraRepository();
+                            //aqui se guarda la nueva compra
                             final nuevaCompra = CompraModels(
                               productoId: productoSeleccionado!.id!,
                               cantidad: int.parse(cantidadController.text),
@@ -407,6 +416,7 @@ class _CompraFormScreenState extends State<CompraFormScreen> {
                             
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
+                             //aqui se definen los mensajes de error
                               SnackBar(
                                 content: Text("Error al guardar: ${e.toString()}"),
                                 backgroundColor: Colors.red,

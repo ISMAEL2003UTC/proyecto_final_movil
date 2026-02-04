@@ -12,8 +12,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white, 
         elevation: 3,
         title: Row(
           children: [
@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: Colors.white,
               ),
             ),
           ],
@@ -35,6 +35,31 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             SizedBox(height: 10),
+            
+            // Logo MAAC
+            Container(
+              margin: EdgeInsets.only(bottom: 20),
+              child: Column(
+                children: [
+                  SizedBox(height: 10),
+                  Text(
+                    'Sistema de Gestión de Inventario',    
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Image.asset(
+                    'lib/assets/MAC.png',
+                    height: 200,
+                    width: 200,
+                    fit: BoxFit.contain,
+                  ),
+                ],
+              ),
+            ),
             Column(
               children: [
                 Row(
@@ -82,6 +107,53 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     TextButton(
                       onPressed: () {
+                        Navigator.pushNamed(context, '/provider');
+                      },
+                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                      child: Container(
+                        width: 160,
+                        height: 110,
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.12),
+                              blurRadius: 6,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.local_shipping,
+                              color: Colors.white,
+                              size: 36,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Proveedores',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () {
                         Navigator.pushNamed(context, '/producto');
                       },
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
@@ -120,13 +192,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/cliente');
@@ -153,46 +218,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(height: 8),
                             Text(
                               'Clientes',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/provider');
-                      },
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                      child: Container(
-                        width: 160,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.12),
-                              blurRadius: 6,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.local_shipping,
-                              color: Colors.white,
-                              size: 36,
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Proveedores',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
