@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../models/providers_model.dart';
 import '../../repositories/providers_repository.dart';
@@ -52,9 +53,20 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
             children: [
               TextFormField(
                 controller: cedulapController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(10),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return "EL CAMPO ES REQUERIDO";
+                  }
+                  if (value.length != 10) {
+                    return "La cédula debe tener exactamente 10 dígitos";
+                  }
+                  if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                    return "La cédula solo debe contener números";
                   }
                   return null;
                 },
@@ -180,7 +192,52 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
                       child: TextButton(
                         onPressed: () async {
                           if (formProvider.currentState!.validate()) {
+                            // aqui vald que no exist una cedula duplicada
                             final repo = ProvidersRepository();
+                            final proveedores = await repo.getAll();
+                            final cedulaActual = cedulapController.text;
+                            
+                            final correoActual = correopController.text;
+                            bool cedulaDuplicada = false;
+                            bool correoDuplicado = false;
+                            for (var p in proveedores) {
+                              if (p.cedulap == cedulaActual && p.id != proveedor?.id) {
+                                cedulaDuplicada = true;
+                                break;
+                              }
+                            }
+                            if (!cedulaDuplicada) {
+                              for (var p in proveedores) {
+                                if (p.correop.toLowerCase() == correoActual.toLowerCase() && p.id != proveedor?.id) {
+                                  correoDuplicado = true;
+                                  break;
+                                }
+                              }
+                            }
+
+                            if (cedulaDuplicada) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Ya existe un proveedor con esta cédula"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                              return;
+                            }
+                            if (correoDuplicado) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Ya existe un proveedor con este correo"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                              return;
+                            }
+                            
                             final provider = ProvidersModel(
                               cedulap: cedulapController.text,
                               nombrep: nombrepController.text,
@@ -194,7 +251,9 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
                             } else {
                               await repo.create(provider);
                             }
-                            Navigator.pop(context);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                            }
                           }
                         },
                         style: TextButton.styleFrom(
