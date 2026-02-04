@@ -192,24 +192,45 @@ class _ProvidersFormScreenState extends State<ProvidersFormScreen> {
                       child: TextButton(
                         onPressed: () async {
                           if (formProvider.currentState!.validate()) {
-                            // Validar que no exista otra cédula duplicada
+                            // aqui vald que no exist una cedula duplicada
                             final repo = ProvidersRepository();
                             final proveedores = await repo.getAll();
                             final cedulaActual = cedulapController.text;
                             
+                            final correoActual = correopController.text;
                             bool cedulaDuplicada = false;
+                            bool correoDuplicado = false;
                             for (var p in proveedores) {
                               if (p.cedulap == cedulaActual && p.id != proveedor?.id) {
                                 cedulaDuplicada = true;
                                 break;
                               }
                             }
-                            
+                            if (!cedulaDuplicada) {
+                              for (var p in proveedores) {
+                                if (p.correop.toLowerCase() == correoActual.toLowerCase() && p.id != proveedor?.id) {
+                                  correoDuplicado = true;
+                                  break;
+                                }
+                              }
+                            }
+
                             if (cedulaDuplicada) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text("Ya existe un proveedor con esta cédula"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                              return;
+                            }
+                            if (correoDuplicado) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Ya existe un proveedor con este correo"),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
