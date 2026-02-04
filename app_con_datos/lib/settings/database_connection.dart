@@ -15,7 +15,8 @@ class DatabaseConnection {
     database = await inicializarDb(); //inicializa la conexion en la funcion
     return database!;
   }
-//constructor de las tablas
+
+  //constructor de las tablas
   Future<Database> inicializarDb() async {
     final rutaDb = await getDatabasesPath();
     final rutaFinal = join(rutaDb, 'gestion.db');
@@ -44,7 +45,10 @@ class DatabaseConnection {
           costo REAL NOT NULL,
           stock REAL NOT NULL,
           categoriaId INTEGER,
+          proveedorId INTEGER,
           FOREIGN KEY (categoriaId) REFERENCES categories(id)
+          FOREIGN KEY (proveedorId) REFERENCES provider(id)
+
         );
         ''');
 

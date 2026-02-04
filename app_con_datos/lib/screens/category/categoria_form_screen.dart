@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../repositories/category_repository.dart';
 
-class CategoryFormScreen extends StatefulWidget {             
+class CategoryFormScreen extends StatefulWidget {
   const CategoryFormScreen({super.key});
 
   @override
@@ -11,7 +11,7 @@ class CategoryFormScreen extends StatefulWidget {
 }
 
 class _CategoryFormScreenState extends State<CategoryFormScreen> {
-  final formCategory = GlobalKey<FormState>();  // valida el formulario
+  final formCategory = GlobalKey<FormState>(); // valida el formulario
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
 
@@ -28,7 +28,8 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
       descripcionController.text = categoria!.descripcion;
     }
   }
-// funcion para liberar memoria 
+
+  // funcion para liberar memoria
   @override
   void dispose() {
     nombreController.dispose();
@@ -82,8 +83,10 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                 decoration: InputDecoration(
                   labelText: 'Descripción',
                   hintText: 'Ingrese la descripción',
-                  prefixIcon:
-                      const Icon(Icons.description, color: Colors.black),
+                  prefixIcon: const Icon(
+                    Icons.description,
+                    color: Colors.black,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
@@ -108,12 +111,11 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                                     nombreController.text.toLowerCase() &&
                                 c.id != (categoria?.id ?? 0),
                           );
-                        // funcionalidad para identificar si la categoria ya existe
+                          // funcionalidad para identificar si la categoria ya existe
                           if (nombreRepetido) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content:
-                                    Text('La categoría ya existe'),
+                                content: Text('La categoría ya existe'),
                                 backgroundColor: Colors.red,
                               ),
                             );
@@ -140,32 +142,29 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                                     : 'Registro exitoso',
                                 textAlign: TextAlign.center,
                               ),
-                              duration:
-                                  const Duration(milliseconds: 500),
+                              duration: const Duration(milliseconds: 500),
                               backgroundColor: Colors.green,
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                           );
 
                           await Future.delayed(
-                              const Duration(milliseconds: 650));
+                            const Duration(milliseconds: 650),
+                          );
                           Navigator.pop(context);
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: const Column(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.save),
                             SizedBox(height: 5),
@@ -185,13 +184,11 @@ class _CategoryFormScreenState extends State<CategoryFormScreen> {
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
                         child: const Column(
-                          mainAxisAlignment:
-                              MainAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.cancel),
                             SizedBox(height: 5),
