@@ -58,7 +58,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
       selectedProveedorId = producto!.proveedorId;
     }
   }
-
+// funcion para obtener los datos de categoria
   void cargarCategorias() async {
     categorias = await categoryRepo.getAll();
     // Si estamos editando, seleccionamos la categoría actual del producto
@@ -68,7 +68,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
 
     setState(() {});
   }
-
+//funcion para obtener los datos de proveedores
   void cargarProveedores() async {
     proveedores = await providerRepo.getAll();
 
@@ -255,7 +255,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                   },
                 ),
                 SizedBox(height: 15),
-
+              //este es el dropdown que muestra proveedores
                 DropdownButtonFormField<int>(
                   value: selectedProveedorId,
                   items: proveedores.map((prov) {
@@ -280,7 +280,7 @@ class _ProductoFormScreenState extends State<ProductoFormScreen> {
                     if (value == null) return 'Seleccione un proveedor';
                     return null;
                   },
-                ),
+                ),  //fin del dropdown
                 SizedBox(height: 15),
 
                 // Botones
