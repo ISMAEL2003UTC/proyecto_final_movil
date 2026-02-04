@@ -27,7 +27,7 @@ class ProductsModels {
       codigo: data["codigo"],
       nombre: data["nombre"],
       descripcion: data["descripcion"],
-      precio: (data["precio"] as num).toDouble(),
+      precio: (data["precio"] as num).toDouble(), // convercion numerica Sqlite no diferencia entre enteros y decimales asi que convierte cada valor a souble
       costo: (data["costo"] as num).toDouble(),
       stock: (data["stock"] as num).toDouble(),
       categoriaId: data["categoriaId"],
