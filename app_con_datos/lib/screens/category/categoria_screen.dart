@@ -52,14 +52,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Eliminar Categoría'),
-        content: const Text('¿Estás seguro que deseas eliminar esta categoría?'),
+        content: const Text(
+          '¿Estás seguro que deseas eliminar esta categoría?',
+        ),
         actions: [
           TextButton(
             onPressed: () async {
               await repo.delete(id);
               Navigator.pop(context);
               await cargarCategoria();
-              // SnackBar de éxito
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: const Text(
@@ -86,7 +87,6 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,95 +100,106 @@ class _CategoryScreenState extends State<CategoryScreen> {
           : categorias.isEmpty
           ? const Center(child: Text('No existen categorías'))
           : Column(
-        children: [
-          Container(
-            width: double.infinity,
-            color: Colors.blueAccent,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
-                  'CATEGORÍA',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+              children: [
+                Container(
+                  width: double.infinity,
+                  color: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 16,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text(
+                        'CATEGORÍA',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        'DESCRIPCIÓN',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        'ACCIONES',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  'DESCRIPCIÓN',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  'ACCIONES',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: categorias.length,
+                    itemBuilder: (context, i) {
+                      final cat = categorias[i];
+                      return Card(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 16,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // CATEGORÍA
+                              Expanded(
+                                flex: 2,
+                                child: Text(
+                                  cat.nombre,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Expanded(flex: 2, child: Text(cat.descripcion)),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.orange,
+                                    ),
+                                    onPressed: () async {
+                                      await Navigator.pushNamed(
+                                        context,
+                                        '/categoria/form',
+                                        arguments: cat,
+                                      );
+                                      cargarCategoria();
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () =>
+                                        eliminarCategoria(cat.id as int),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: ListView.builder(
-              itemCount: categorias.length,
-              itemBuilder: (context, i) {
-                final cat = categorias[i];
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // CATEGORÍA
-                        Expanded(
-                          flex: 2,
-                          child: Text(
-                            cat.nombre,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text(cat.descripcion),
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.orange),
-                              onPressed: () async {
-                                await Navigator.pushNamed(
-                                  context,
-                                  '/categoria/form',
-                                  arguments: cat,
-                                );
-                                cargarCategoria();
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => eliminarCategoria(cat.id as int),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.pushNamed(context, '/categoria/form');
@@ -201,4 +212,3 @@ class _CategoryScreenState extends State<CategoryScreen> {
     );
   }
 }
-

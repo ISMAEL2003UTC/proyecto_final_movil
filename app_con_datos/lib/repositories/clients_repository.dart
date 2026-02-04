@@ -7,13 +7,13 @@ class ClientsRepository {
   final database = DatabaseConnection();
   // funcion para insertar datos
   Future<int> create(ClientsModels data) async {
-    final db = await database.db; //1. llamar a la conexion
+    final db = await database.db;
     return await db.insert(tableName, data.toMap()); // ejecuto el sql
   }
 
   //funcion para poder editar
   Future<int> edit(ClientsModels data) async {
-    final db = await database.db; //1. llamar a la conexion
+    final db = await database.db;
     return await db.update(
       tableName,
       data.toMap(),
@@ -24,7 +24,7 @@ class ClientsRepository {
 
   //funcion para poder eliminar
   Future<int> delete(int id) async {
-    final db = await database.db; //1. llamar a la conexion
+    final db = await database.db;
     return await db.delete(
       tableName,
       where: 'id=?',

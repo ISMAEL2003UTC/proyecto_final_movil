@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../models/products_models.dart';
-import '../models/sales_models.dart';
-import '../repositories/products_repository.dart';
-import '../repositories/sale_detail_repository.dart';
-import '../repositories/sales_repository.dart';
-
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
 
@@ -14,59 +8,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final SaleRepository saleRepo = SaleRepository();
-  double totalVentas = 0;
-  double totalGanancias = 0;
-
-  bool cargando = true;
-
-  @override
-  void initState() {
-    super.initState();
-    cargarTotales();
-  }
-
-  Future<void> cargarTotales() async {
-    setState(() => cargando = true);
-
-    List<SaleModels> ventas = await saleRepo.getAll();
-    double sumaVentas = 0;
-    double sumaGanancias = 0;
-
-    final detailRepo = SaleDetailRepository();
-    final productsRepo = ProductsRepository();
-    final productos = await productsRepo.getAll();
-
-    for (var venta in ventas) {
-      sumaVentas += venta.montoTotal;
-
-      // Obtener detalles de la venta
-      final detalles = await detailRepo.getByVenta(venta.id!);
-      for (var detalle in detalles) {
-        final producto = productos.firstWhere(
-          (p) => p.id == detalle.productoId,
-          orElse: () => ProductsModels(
-            id: 0,
-            nombre: 'Desconocido',
-            precio: 0,
-            costo: 0,
-            codigo: '',
-            descripcion: '',
-            stock: 0,
-          ),
-        );
-        sumaGanancias +=
-            (detalle.precioUnitario - producto.costo) * detalle.cantidad;
-      }
-    }
-
-    setState(() {
-      totalVentas = sumaVentas;
-      totalGanancias = sumaGanancias;
-      cargando = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,10 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 10),
             Column(
               children: [
-                // aqui es donde estaba el tipo dashboard
-                SizedBox(height: 20),
-
-                // FILA 1
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -187,8 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 SizedBox(height: 10),
-
-                // FILA 2
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -272,8 +207,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 SizedBox(height: 10),
-
-                // FILA 3 - VENTAS Y GASTOS
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -286,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 160,
                         height: 110,
                         decoration: BoxDecoration(
-                          color: Colors.teal, // Color diferente para distinguir
+                          color: Colors.teal,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -300,8 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons
-                                  .shopping_bag, // Icono diferente para compras
+                              Icons.shopping_bag,
                               color: Colors.white,
                               size: 36,
                             ),
